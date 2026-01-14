@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X, Play, Expand } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,10 @@ const getPreviewUrl = (item: PropertyMedia): string => {
   return item.url;
 };
 
+// Grid positions for the 10 small images (2 columns x 5 rows)
+const TOTAL_SMALL_CELLS = 10;
+const MAX_VISIBLE = 11; // 1 main + 10 small
+
 const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
@@ -71,18 +75,18 @@ const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
     [api]
   );
 
-  const onSelect = useCallback(() => {
+  useEffect(() => {
     if (!api) return;
-    setCurrent(api.selectedScrollSnap());
-  }, [api]);
-
-  useState(() => {
-    if (!api) return;
+    
+    const onSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
+    
     api.on("select", onSelect);
     return () => {
       api.off("select", onSelect);
     };
-  });
+  }, [api]);
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
@@ -106,11 +110,81 @@ const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
   }
 
   const currentItem = media[lightboxIndex];
+  const smallMedia = media.slice(1, MAX_VISIBLE);
+  const emptyCells = Math.max(0, TOTAL_SMALL_CELLS - smallMedia.length);
+  const hasMoreImages = media.length > MAX_VISIBLE;
+  const extraCount = media.length - MAX_VISIBLE;
+
+  // Render a media cell (image or video)
+  const renderMediaCell = (item: PropertyMedia, index: number, isMain: boolean = false) => {
+    const isLastCell = index === MAX_VISIBLE - 2 && hasMoreImages; // Last visible small cell
+    
+    return (
+      <div
+        key={item.id}
+        className={cn(
+          "relative cursor-pointer group overflow-hidden",
+          isMain && "col-span-3 row-span-5"
+        )}
+        onClick={() => openLightbox(isMain ? 0 : index + 1)}
+      >
+        {item.type === "video" ? (
+          <>
+            <img
+              src={getPreviewUrl(item)}
+              alt={item.caption || `${title} - ${index + 1}`}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <div className={cn(
+                "rounded-full bg-white/90 flex items-center justify-center",
+                isMain ? "w-16 h-16" : "w-10 h-10"
+              )}>
+                <Play className={cn(
+                  "text-foreground ml-0.5",
+                  isMain ? "w-8 h-8" : "w-5 h-5"
+                )} />
+              </div>
+            </div>
+          </>
+        ) : (
+          <img
+            src={item.url}
+            alt={item.caption || `${title} - ${index + 1}`}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
+        
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+        
+        {/* Expand button on main image */}
+        {isMain && (
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Expand className="w-4 h-4" />
+          </Button>
+        )}
+        
+        {/* +N overlay on last cell if there are more images */}
+        {isLastCell && (
+          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+            <span className="text-white text-xl font-bold">
+              +{extraCount}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
-      <div className="space-y-4">
-        {/* Main Carousel */}
+      {/* Mobile: Carousel */}
+      <div className="md:hidden space-y-4">
         <Carousel
           setApi={setApi}
           className="w-full"
@@ -120,7 +194,7 @@ const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
             {media.map((item, index) => (
               <CarouselItem key={item.id}>
                 <div
-                  className="relative aspect-[16/10] md:aspect-[16/9] rounded-xl overflow-hidden cursor-pointer group"
+                  className="relative aspect-[16/10] rounded-xl overflow-hidden cursor-pointer group"
                   onClick={() => openLightbox(index)}
                 >
                   {item.type === "video" ? (
@@ -159,38 +233,9 @@ const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
           <CarouselNext className="right-4" />
         </Carousel>
 
-        {/* Thumbnails */}
-        {media.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {media.map((item, index) => (
-              <button
-                key={item.id}
-                onClick={() => scrollTo(index)}
-                className={cn(
-                  "relative flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden transition-all",
-                  current === index
-                    ? "ring-2 ring-primary ring-offset-2"
-                    : "opacity-70 hover:opacity-100"
-                )}
-              >
-                <img
-                  src={getPreviewUrl(item)}
-                  alt={item.caption || `Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-                {item.type === "video" && (
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <Play className="w-4 h-4 text-white" />
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* Dots indicator for mobile */}
         {media.length > 1 && (
-          <div className="flex justify-center gap-1.5 md:hidden">
+          <div className="flex justify-center gap-1.5">
             {media.map((_, index) => (
               <button
                 key={index}
@@ -203,6 +248,20 @@ const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Desktop: Grid Layout */}
+      <div className="hidden md:grid grid-cols-5 grid-rows-5 gap-2 h-[500px] lg:h-[600px] rounded-xl overflow-hidden">
+        {/* Main image - 3 columns, 5 rows (60% width) */}
+        {media[0] && renderMediaCell(media[0], -1, true)}
+        
+        {/* Small images - 2 columns, 5 rows (40% width) */}
+        {smallMedia.map((item, index) => renderMediaCell(item, index))}
+        
+        {/* Empty cells if less than 11 images */}
+        {Array.from({ length: emptyCells }).map((_, i) => (
+          <div key={`empty-${i}`} className="bg-muted" />
+        ))}
       </div>
 
       {/* Lightbox Dialog */}

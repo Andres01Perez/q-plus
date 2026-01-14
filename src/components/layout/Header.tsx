@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, Settings } from 'lucide-react';
 import logo from '@/assets/logo_qplus.png';
+import { useAuth } from '@/hooks/useAuth';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
@@ -40,7 +42,7 @@ const Header = () => {
               Contacto
             </a>
             <Link 
-              to="/login" 
+              to={user ? "/admin" : "/login"} 
               className="p-2 rounded-lg hover:bg-muted transition-colors"
               aria-label="Acceso administrativo"
             >
@@ -84,7 +86,7 @@ const Header = () => {
                 Contacto
               </a>
               <Link 
-                to="/login" 
+                to={user ? "/admin" : "/login"} 
                 onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors"
               >

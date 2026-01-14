@@ -62,6 +62,44 @@ export function PropertyMediaSection({ mediaItems, onChange, propertyId }: Prope
     setNewType("image");
   };
 
+  // Helper function to parse storage upload errors
+  const getUploadErrorMessage = (error: any, fileName: string): string => {
+    const errorMessage = error?.message || '';
+    const statusCode = error?.statusCode || error?.status;
+
+    // File size exceeded
+    if (statusCode === '413' || statusCode === 413 || errorMessage.includes('exceeded the maximum')) {
+      return `${fileName} excede el límite de tamaño permitido por el servidor (50MB)`;
+    }
+    
+    // Invalid mime type
+    if (statusCode === '415' || statusCode === 415 || errorMessage.includes('mime type') || errorMessage.includes('not allowed')) {
+      return `${fileName} tiene un formato de archivo no permitido`;
+    }
+    
+    // Auth errors
+    if (statusCode === '401' || statusCode === 401 || statusCode === '403' || statusCode === 403) {
+      return `No tienes permisos para subir ${fileName}. Intenta iniciar sesión nuevamente.`;
+    }
+    
+    // Network/connection errors
+    if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('Failed to fetch')) {
+      return `Error de conexión al subir ${fileName}. Verifica tu conexión a internet.`;
+    }
+    
+    // Bucket not found
+    if (errorMessage.includes('Bucket not found') || errorMessage.includes('bucket')) {
+      return `Error de configuración del almacenamiento. Contacta al administrador.`;
+    }
+
+    // Return server message if available
+    if (errorMessage) {
+      return `Error al subir ${fileName}: ${errorMessage}`;
+    }
+    
+    return `No se pudo subir ${fileName}. Intenta de nuevo.`;
+  };
+
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
@@ -74,12 +112,16 @@ export function PropertyMediaSection({ mediaItems, onChange, propertyId }: Prope
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        const isVideo = file.type.startsWith("video/");
 
-        // Validate file size
+        // Validate file size with more descriptive message
         if (file.size > MAX_FILE_SIZE) {
           toast({
             title: "Archivo muy grande",
-            description: `${file.name} excede el límite de 50MB`,
+            description: isVideo 
+              ? `El video ${file.name} pesa ${fileSizeMB}MB. El límite es 50MB. Considera comprimir el video antes de subirlo.`
+              : `${file.name} (${fileSizeMB}MB) excede el límite de 50MB`,
             variant: "destructive",
           });
           continue;
@@ -89,7 +131,7 @@ export function PropertyMediaSection({ mediaItems, onChange, propertyId }: Prope
         if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
           toast({
             title: "Tipo de archivo no permitido",
-            description: `${file.name} no es un formato válido`,
+            description: `${file.name} no es un formato válido. Formatos permitidos: JPG, PNG, WebP, GIF, MP4`,
             variant: "destructive",
           });
           continue;
@@ -110,10 +152,17 @@ export function PropertyMediaSection({ mediaItems, onChange, propertyId }: Prope
           });
 
         if (error) {
-          console.error("Upload error:", error);
+          console.error("Upload error details:", {
+            message: error.message,
+            statusCode: (error as any).statusCode,
+            error: error,
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type
+          });
           toast({
-            title: "Error al subir",
-            description: `No se pudo subir ${file.name}`,
+            title: "Error al subir archivo",
+            description: getUploadErrorMessage(error, file.name),
             variant: "destructive",
           });
           continue;
@@ -124,8 +173,6 @@ export function PropertyMediaSection({ mediaItems, onChange, propertyId }: Prope
           .from("property-media")
           .getPublicUrl(data.path);
 
-        const isVideo = file.type.startsWith("video/");
-        
         uploadedItems.push({
           url: urlData.publicUrl,
           type: isVideo ? "video" : "image",
@@ -145,11 +192,15 @@ export function PropertyMediaSection({ mediaItems, onChange, propertyId }: Prope
           description: `Se subieron ${uploadedItems.length} archivo(s) correctamente`,
         });
       }
-    } catch (error) {
-      console.error("Upload error:", error);
+    } catch (error: any) {
+      console.error("Upload error:", {
+        message: error?.message,
+        stack: error?.stack,
+        error: error
+      });
       toast({
-        title: "Error",
-        description: "Ocurrió un error al subir los archivos",
+        title: "Error inesperado",
+        description: `Ocurrió un error al subir los archivos: ${error?.message || 'Error desconocido'}`,
         variant: "destructive",
       });
     } finally {

@@ -115,7 +115,8 @@ const AdminLayout = () => {
             <img 
               src={logo} 
               alt="Q+ Inmobiliaria" 
-              className="h-10 w-auto brightness-0 invert"
+              className="h-10 w-auto"
+              style={{ filter: 'brightness(0) invert(1)' }}
             />
             <div>
               <p className="text-xs text-sidebar-foreground/60">Admin Panel</p>

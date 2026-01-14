@@ -3,11 +3,25 @@ import { ChecklistBlock } from "./ChecklistBlock";
 import { DetailsListBlock } from "./DetailsListBlock";
 import { FreeTextBlock } from "./FreeTextBlock";
 import type { BlockWithAttributes } from "@/types/property";
+import { icons } from "lucide-react";
 
 interface DynamicBlockProps {
   block: BlockWithAttributes;
   values: Record<string, string>;
   onChange: (attributeId: string, value: string) => void;
+}
+
+// Convert kebab-case to PascalCase for icon lookup
+function getIconComponent(iconName: string | null) {
+  if (!iconName) return null;
+  
+  // Convert kebab-case to PascalCase (e.g., "map-pin" -> "MapPin")
+  const pascalCase = iconName
+    .split("-")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+  
+  return icons[pascalCase as keyof typeof icons] || null;
 }
 
 export function DynamicBlock({ block, values, onChange }: DynamicBlockProps) {
@@ -46,11 +60,13 @@ export function DynamicBlock({ block, values, onChange }: DynamicBlockProps) {
     }
   };
 
+  const IconComponent = getIconComponent(block.icon);
+
   return (
     <Card>
       <CardHeader className="pb-4">
         <CardTitle className="text-lg flex items-center gap-2">
-          {block.icon && <span>{block.icon}</span>}
+          {IconComponent && <IconComponent className="h-5 w-5" />}
           {block.name}
         </CardTitle>
       </CardHeader>

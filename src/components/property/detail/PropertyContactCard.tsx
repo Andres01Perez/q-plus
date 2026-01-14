@@ -179,9 +179,7 @@ const PropertyContactCard = ({ property }: PropertyContactCardProps) => {
   ];
 
   return (
-    <>
-      {/* Desktop Card */}
-      <Card className="hidden lg:block sticky top-24 shadow-lg">
+    <Card className="sticky top-24 shadow-lg">
         <CardHeader className="pb-4">
           {getPriceDisplay()}
         </CardHeader>
@@ -242,8 +240,7 @@ const PropertyContactCard = ({ property }: PropertyContactCardProps) => {
             </PopoverContent>
           </Popover>
         </CardContent>
-      </Card>
-    </>
+    </Card>
   );
 };
 

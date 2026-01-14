@@ -163,37 +163,6 @@ const PropertyContactCard = ({ property }: PropertyContactCardProps) => {
         </CardContent>
       </Card>
 
-      {/* Mobile Fixed Bottom Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border p-4 shadow-lg">
-        <div className="flex gap-3 max-w-lg mx-auto">
-          <Button
-            className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
-            onClick={handleWhatsApp}
-          >
-            <MessageCircle className="w-5 h-5" />
-            WhatsApp
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1 gap-2"
-            onClick={handleCall}
-          >
-            <Phone className="w-5 h-5" />
-            Llamar
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleShare}
-          >
-            {copied ? (
-              <Check className="w-5 h-5 text-green-600" />
-            ) : (
-              <Share2 className="w-5 h-5" />
-            )}
-          </Button>
-        </div>
-      </div>
     </>
   );
 };

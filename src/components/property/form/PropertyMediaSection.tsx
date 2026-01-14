@@ -21,7 +21,7 @@ const mediaTypeOptions: { value: MediaType; label: string; icon: React.ReactNode
 ];
 
 const ACCEPTED_FILE_TYPES = "image/jpeg,image/png,image/webp,image/gif,video/mp4";
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 export function PropertyMediaSection({ mediaItems, onChange, propertyId }: PropertyMediaSectionProps) {
   const [newUrl, setNewUrl] = useState("");
@@ -79,7 +79,7 @@ export function PropertyMediaSection({ mediaItems, onChange, propertyId }: Prope
         if (file.size > MAX_FILE_SIZE) {
           toast({
             title: "Archivo muy grande",
-            description: `${file.name} excede el límite de 10MB`,
+            description: `${file.name} excede el límite de 50MB`,
             variant: "destructive",
           });
           continue;
@@ -286,7 +286,7 @@ export function PropertyMediaSection({ mediaItems, onChange, propertyId }: Prope
                     o haz clic para seleccionar archivos
                   </p>
                   <p className="text-xs text-muted-foreground mt-2">
-                    JPG, PNG, WebP, GIF o MP4 (máx. 10MB)
+                    JPG, PNG, WebP, GIF o MP4 (máx. 50MB)
                   </p>
                 </>
               )}

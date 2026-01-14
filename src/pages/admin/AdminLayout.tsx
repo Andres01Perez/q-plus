@@ -86,9 +86,7 @@ const AdminLayout = () => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="h-16 flex items-center gap-3 px-6 border-b border-sidebar-border">
-            <img alt="Q+ Inmobiliaria" className="h-10 w-auto" style={{
-            filter: 'brightness(0) invert(1)'
-          }} src="/lovable-uploads/ee802a19-60e2-44ef-a24c-f0b14e66f02a.png" />
+            <img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto brightness-0 invert" />
             <div>
               <p className="text-xs text-sidebar-foreground/60">Admin Panel</p>
             </div>

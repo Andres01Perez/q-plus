@@ -107,6 +107,11 @@ const PropertyDetail = () => {
             <div className="lg:col-span-2 space-y-8">
               <PropertyInfo property={property} />
               
+              {/* Contact Card - Mobile Only */}
+              <div className="lg:hidden">
+                <PropertyContactCard property={property} />
+              </div>
+              
               <PropertyFeatures
                 blocks={blocks}
                 propertyValues={propertyValues}

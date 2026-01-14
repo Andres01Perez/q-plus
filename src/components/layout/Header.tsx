@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, Settings } from 'lucide-react';
+import logo from '@/assets/logo_qplus.png';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,11 +11,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-display font-bold text-xl">Q+</span>
-            </div>
-            <span className="font-display font-semibold text-xl text-foreground hidden sm:block">Qplus</span>
+          <Link to="/" className="flex items-center">
+            <img 
+              src={logo} 
+              alt="Q+ Inmobiliaria" 
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}

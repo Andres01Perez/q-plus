@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react';
+import logo from '@/assets/logo_qplus.png';
 
 const Footer = () => {
   return (
@@ -9,13 +10,14 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-display font-bold text-xl">Q+</span>
-              </div>
-              <span className="font-display font-semibold text-xl">Qplus</span>
+              <img 
+                src={logo} 
+                alt="Q+ Inmobiliaria" 
+                className="h-10 w-auto brightness-0 invert"
+              />
             </div>
             <p className="font-body text-sm opacity-80 leading-relaxed">
-              Tu aliado inmobiliario de confianza. Encontramos el hogar perfecto para ti con tecnología de vanguardia.
+              Tu aliado inmobiliario de confianza. Encontramos el hogar perfecto para ti.
             </p>
           </div>
 
@@ -91,7 +93,7 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-background/20">
           <p className="font-body text-sm text-center opacity-60">
-            © {new Date().getFullYear()} Qplus Inmobiliaria. Todos los derechos reservados.
+            © {new Date().getFullYear()} Q+ Inmobiliaria. Todos los derechos reservados.
           </p>
         </div>
       </div>

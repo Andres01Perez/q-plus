@@ -7,6 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import logo from '@/assets/logo_qplus.png';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -60,9 +61,11 @@ const AdminLayout = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse">
-          <div className="w-12 h-12 rounded-lg gradient-hero flex items-center justify-center">
-            <span className="text-primary-foreground font-display font-bold text-xl">Q+</span>
-          </div>
+          <img 
+            src={logo} 
+            alt="Q+ Inmobiliaria" 
+            className="h-12 w-auto"
+          />
         </div>
       </div>
     );
@@ -81,9 +84,11 @@ const AdminLayout = () => {
           {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
         <div className="flex items-center gap-2 ml-4">
-          <div className="w-8 h-8 rounded-lg gradient-hero flex items-center justify-center">
-            <span className="text-primary-foreground font-display font-bold text-sm">Q+</span>
-          </div>
+          <img 
+            src={logo} 
+            alt="Q+ Inmobiliaria" 
+            className="h-8 w-auto"
+          />
           <span className="font-display font-semibold">Admin</span>
         </div>
       </header>
@@ -107,11 +112,12 @@ const AdminLayout = () => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="h-16 flex items-center gap-3 px-6 border-b border-sidebar-border">
-            <div className="w-10 h-10 rounded-lg bg-sidebar-primary flex items-center justify-center">
-              <span className="text-sidebar-primary-foreground font-display font-bold text-xl">Q+</span>
-            </div>
+            <img 
+              src={logo} 
+              alt="Q+ Inmobiliaria" 
+              className="h-10 w-auto brightness-0 invert"
+            />
             <div>
-              <span className="font-display font-semibold text-lg">Qplus</span>
               <p className="text-xs text-sidebar-foreground/60">Admin Panel</p>
             </div>
           </div>

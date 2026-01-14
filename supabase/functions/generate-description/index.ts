@@ -45,20 +45,30 @@ serve(async (req) => {
       .filter(Boolean)
       .join("\n");
 
-    const systemPrompt = `Eres un experto redactor de anuncios inmobiliarios en español para Colombia. 
-Tu objetivo es crear descripciones atractivas, profesionales y persuasivas que destaquen las mejores características de las propiedades.
+    const systemPrompt = `Eres un copywriter experto en anuncios inmobiliarios para Colombia.
+Tu objetivo es crear descripciones CORTAS, IMPACTANTES y que vendan.
 
-Reglas:
-- Escribe en español colombiano profesional
-- Usa un tono cálido pero formal
-- Destaca beneficios, no solo características
-- Mantén la descripción entre 150-250 palabras
-- Incluye llamadas a la acción sutiles
-- No uses emojis
-- No inventes características que no se mencionen`;
+REGLAS ESTRICTAS:
+- Máximo 80-100 palabras
+- Primera oración debe ser un GANCHO IRRESISTIBLE que capture atención inmediata
+- Usa verbos de acción: "Vive", "Disfruta", "Descubre", "Imagina"
+- Destaca el BENEFICIO PRINCIPAL inmediatamente
+- Evita palabras genéricas como "bonito", "lindo", "agradable"
+- Usa adjetivos poderosos: "Espectacular", "Exclusivo", "Privilegiado", "Impactante"
+- Incluye una frase de cierre que invite a la acción
+- NO uses emojis
+- NO uses listas con viñetas
+- NO inventes características que no se mencionen
+- Español colombiano profesional
+
+ESTRUCTURA IDEAL:
+[Gancho irresistible - 1 oración] + [2-3 beneficios clave] + [Cierre con llamada a acción sutil]
+
+EJEMPLO DE TONO:
+"Despierta cada mañana con una vista que te quita el aliento. Este espectacular apartamento en el corazón de [zona] combina acabados de lujo con la ubicación más privilegiada de la ciudad. Agenda tu visita y enamórate."`;
 
     const userPrompt = currentDescription
-      ? `Mejora la siguiente descripción de propiedad inmobiliaria, haciéndola más atractiva y profesional.
+      ? `Mejora esta descripción haciéndola MÁS CORTA (máximo 100 palabras), más impactante y con un gancho inicial irresistible.
 
 Datos de la propiedad:
 ${propertyContext}
@@ -66,15 +76,14 @@ ${propertyContext}
 Descripción actual:
 ${currentDescription}
 
-Por favor, mejora esta descripción manteniendo los datos reales.`
-      : `Genera una descripción atractiva y profesional para la siguiente propiedad inmobiliaria.
+Reescribe de forma más vendedora y concisa. El primer impacto lo es todo.`
+      : `Crea una descripción de venta CORTA (máximo 100 palabras) e IMPACTANTE para esta propiedad:
 
-Datos de la propiedad:
 ${propertyContext}
 
-Crea una descripción que destaque los beneficios de vivir en esta propiedad.`;
+Recuerda: Primera oración = gancho que atrape. Sé directo, persuasivo y vendedor.`;
 
-    console.log("Calling Lovable AI gateway...");
+    console.log("Calling Lovable AI gateway for short description...");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -119,7 +128,7 @@ Crea una descripción que destaque los beneficios de vivir en esta propiedad.`;
       throw new Error("No description generated");
     }
 
-    console.log("Description generated successfully");
+    console.log("Short description generated successfully");
 
     return new Response(
       JSON.stringify({ description }),

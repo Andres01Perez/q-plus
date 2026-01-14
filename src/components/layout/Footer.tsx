@@ -24,19 +24,19 @@ const Footer = () => {
             <h4 className="font-display font-semibold text-lg mb-4">Enlaces</h4>
             <ul className="space-y-2">
               <li>
+                <Link to="/" className="font-body text-sm opacity-80 hover:opacity-100 transition-opacity">
+                  Inicio
+                </Link>
+              </li>
+              <li>
                 <Link to="/propiedades" className="font-body text-sm opacity-80 hover:opacity-100 transition-opacity">
                   Propiedades
                 </Link>
               </li>
               <li>
-                <Link to="/buscar" className="font-body text-sm opacity-80 hover:opacity-100 transition-opacity">
-                  Buscar
-                </Link>
-              </li>
-              <li>
-                <Link to="/contacto" className="font-body text-sm opacity-80 hover:opacity-100 transition-opacity">
+                <a href="#contacto" className="font-body text-sm opacity-80 hover:opacity-100 transition-opacity">
                   Contacto
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

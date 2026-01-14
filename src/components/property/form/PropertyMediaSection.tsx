@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Image, Video, Plus, Trash2, Star, GripVertical } from "lucide-react";
+import { Image, Video, Plus, Trash2, Star, GripVertical, Upload, Link, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import type { MediaFormItem, MediaType } from "@/types/property";
 
 interface PropertyMediaSectionProps {
   mediaItems: MediaFormItem[];
   onChange: (items: MediaFormItem[]) => void;
+  propertyId?: string;
 }
 
 const mediaTypeOptions: { value: MediaType; label: string; icon: React.ReactNode }[] = [
@@ -17,29 +20,40 @@ const mediaTypeOptions: { value: MediaType; label: string; icon: React.ReactNode
   { value: "video", label: "Video", icon: <Video className="h-4 w-4" /> },
 ];
 
-export function PropertyMediaSection({ mediaItems, onChange }: PropertyMediaSectionProps) {
+const ACCEPTED_FILE_TYPES = "image/jpeg,image/png,image/webp,image/gif,video/mp4";
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+export function PropertyMediaSection({ mediaItems, onChange, propertyId }: PropertyMediaSectionProps) {
   const [newUrl, setNewUrl] = useState("");
   const [newType, setNewType] = useState<MediaType>("image");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
-  const addMedia = () => {
+  const addMediaFromUrl = () => {
     if (!newUrl.trim()) return;
 
     // Detect provider from URL
     let provider = "";
+    let type: MediaType = newType;
+    
     if (newUrl.includes("youtube.com") || newUrl.includes("youtu.be")) {
       provider = "youtube";
+      type = "video";
     } else if (newUrl.includes("drive.google.com")) {
       provider = "google_drive";
     } else if (newUrl.includes("vimeo.com")) {
       provider = "vimeo";
+      type = "video";
     }
 
     const newItem: MediaFormItem = {
       url: newUrl.trim(),
-      type: newType,
+      type,
       caption: "",
       provider,
-      is_main: mediaItems.length === 0, // First item is main by default
+      is_main: mediaItems.length === 0,
       display_order: mediaItems.length,
     };
 
@@ -48,10 +62,132 @@ export function PropertyMediaSection({ mediaItems, onChange }: PropertyMediaSect
     setNewType("image");
   };
 
-  const removeMedia = (index: number) => {
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    const uploadedItems: MediaFormItem[] = [];
+    const totalFiles = files.length;
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        // Validate file size
+        if (file.size > MAX_FILE_SIZE) {
+          toast({
+            title: "Archivo muy grande",
+            description: `${file.name} excede el límite de 10MB`,
+            variant: "destructive",
+          });
+          continue;
+        }
+
+        // Validate file type
+        if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
+          toast({
+            title: "Tipo de archivo no permitido",
+            description: `${file.name} no es un formato válido`,
+            variant: "destructive",
+          });
+          continue;
+        }
+
+        // Generate unique filename
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substring(2, 8);
+        const extension = file.name.split('.').pop();
+        const fileName = `${propertyId || 'new'}/${timestamp}-${randomId}.${extension}`;
+
+        // Upload to Supabase Storage
+        const { data, error } = await supabase.storage
+          .from("property-media")
+          .upload(fileName, file, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (error) {
+          console.error("Upload error:", error);
+          toast({
+            title: "Error al subir",
+            description: `No se pudo subir ${file.name}`,
+            variant: "destructive",
+          });
+          continue;
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from("property-media")
+          .getPublicUrl(data.path);
+
+        const isVideo = file.type.startsWith("video/");
+        
+        uploadedItems.push({
+          url: urlData.publicUrl,
+          type: isVideo ? "video" : "image",
+          caption: "",
+          provider: "supabase",
+          is_main: mediaItems.length === 0 && uploadedItems.length === 0,
+          display_order: mediaItems.length + uploadedItems.length,
+        });
+
+        setUploadProgress(Math.round(((i + 1) / totalFiles) * 100));
+      }
+
+      if (uploadedItems.length > 0) {
+        onChange([...mediaItems, ...uploadedItems]);
+        toast({
+          title: "Archivos subidos",
+          description: `Se subieron ${uploadedItems.length} archivo(s) correctamente`,
+        });
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al subir los archivos",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    handleFileUpload(e.dataTransfer.files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const removeMedia = async (index: number) => {
+    const item = mediaItems[index];
+    
+    // If it's a Supabase file, try to delete it from storage
+    if (item.provider === "supabase" && item.url.includes("property-media")) {
+      try {
+        const path = item.url.split("/property-media/")[1];
+        if (path) {
+          await supabase.storage.from("property-media").remove([path]);
+        }
+      } catch (error) {
+        console.error("Error deleting file:", error);
+      }
+    }
+
     const updated = mediaItems.filter((_, i) => i !== index);
     // If we removed the main image, set the first one as main
-    if (mediaItems[index].is_main && updated.length > 0) {
+    if (item.is_main && updated.length > 0) {
       updated[0].is_main = true;
     }
     onChange(updated);
@@ -95,35 +231,99 @@ export function PropertyMediaSection({ mediaItems, onChange }: PropertyMediaSect
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Add new media */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1">
-            <Input
-              value={newUrl}
-              onChange={(e) => setNewUrl(e.target.value)}
-              placeholder="URL de imagen o video (YouTube, Google Drive...)"
-            />
-          </div>
-          <Select value={newType} onValueChange={(v: MediaType) => setNewType(v)}>
-            <SelectTrigger className="w-full sm:w-[120px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {mediaTypeOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  <span className="flex items-center gap-2">
-                    {opt.icon}
-                    {opt.label}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={addMedia} disabled={!newUrl.trim()}>
-            <Plus className="h-4 w-4 mr-2" />
-            Agregar
-          </Button>
-        </div>
+        {/* Upload Methods Tabs */}
+        <Tabs defaultValue="upload" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="upload" className="gap-2">
+              <Upload className="h-4 w-4" />
+              Subir archivo
+            </TabsTrigger>
+            <TabsTrigger value="url" className="gap-2">
+              <Link className="h-4 w-4" />
+              Desde URL
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="upload" className="mt-4">
+            {/* Drop zone */}
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onClick={() => fileInputRef.current?.click()}
+              className={`
+                border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+                transition-colors hover:border-primary hover:bg-primary/5
+                ${isUploading ? "pointer-events-none opacity-50" : ""}
+              `}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={ACCEPTED_FILE_TYPES}
+                multiple
+                className="hidden"
+                onChange={(e) => handleFileUpload(e.target.files)}
+              />
+              
+              {isUploading ? (
+                <div className="space-y-3">
+                  <Loader2 className="h-10 w-10 mx-auto text-primary animate-spin" />
+                  <p className="text-sm text-muted-foreground">
+                    Subiendo archivos... {uploadProgress}%
+                  </p>
+                  <div className="w-full max-w-xs mx-auto bg-muted rounded-full h-2">
+                    <div 
+                      className="bg-primary h-2 rounded-full transition-all"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+                  <p className="font-medium">Arrastra imágenes aquí</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    o haz clic para seleccionar archivos
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    JPG, PNG, WebP, GIF o MP4 (máx. 10MB)
+                  </p>
+                </>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="url" className="mt-4">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <Input
+                  value={newUrl}
+                  onChange={(e) => setNewUrl(e.target.value)}
+                  placeholder="URL de imagen o video (YouTube, Google Drive...)"
+                />
+              </div>
+              <Select value={newType} onValueChange={(v: MediaType) => setNewType(v)}>
+                <SelectTrigger className="w-full sm:w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {mediaTypeOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      <span className="flex items-center gap-2">
+                        {opt.icon}
+                        {opt.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="button" onClick={addMediaFromUrl} disabled={!newUrl.trim()}>
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Media list */}
         {mediaItems.length === 0 ? (
@@ -131,11 +331,14 @@ export function PropertyMediaSection({ mediaItems, onChange }: PropertyMediaSect
             <Image className="h-12 w-12 mx-auto mb-3 opacity-50" />
             <p>No hay archivos multimedia agregados</p>
             <p className="text-xs mt-1">
-              Agrega URLs de imágenes o videos de YouTube/Google Drive
+              Sube imágenes o agrega URLs de YouTube/Google Drive
             </p>
           </div>
         ) : (
           <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {mediaItems.length} archivo(s) agregado(s)
+            </p>
             {mediaItems.map((item, index) => {
               const previewUrl = getPreviewUrl(item);
               
@@ -174,13 +377,13 @@ export function PropertyMediaSection({ mediaItems, onChange }: PropertyMediaSect
 
                   {/* Info */}
                   <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       {item.type === "video" ? (
-                        <Video className="h-4 w-4 text-muted-foreground" />
+                        <Video className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       ) : (
-                        <Image className="h-4 w-4 text-muted-foreground" />
+                        <Image className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       )}
-                      <span className="text-xs text-muted-foreground truncate">
+                      <span className="text-xs text-muted-foreground truncate max-w-[200px]">
                         {item.url}
                       </span>
                       {item.provider && (

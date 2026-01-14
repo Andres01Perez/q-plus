@@ -8,9 +8,5 @@ export default function PropertyEdit() {
     return <Navigate to="/admin/propiedades" replace />;
   }
 
-  return (
-    <div className="container max-w-5xl py-6">
-      <PropertyForm propertyId={id} />
-    </div>
-  );
+  return <PropertyForm propertyId={id} />;
 }

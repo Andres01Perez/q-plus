@@ -274,7 +274,7 @@ export default function BlocksConfig() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="w-full justify-start text-muted-foreground hover:text-foreground [&:hover_svg]:text-white"
+                            className="w-full justify-start text-muted-foreground hover:text-white [&:hover_svg]:text-white"
                             onClick={() => handleCreateAttribute(block)}
                           >
                             <Plus className="h-4 w-4 mr-2" />
@@ -335,7 +335,7 @@ export default function BlocksConfig() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="w-full justify-start text-muted-foreground hover:text-foreground [&:hover_svg]:text-white"
+                              className="w-full justify-start text-muted-foreground hover:text-white [&:hover_svg]:text-white"
                               onClick={() => handleCreateAttribute(block)}
                             >
                               <Plus className="h-4 w-4 mr-2" />

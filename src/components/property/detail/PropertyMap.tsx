@@ -46,57 +46,32 @@ const PropertyMap = ({ lat, lng, address, city, neighborhood }: PropertyMapProps
           rel="noopener noreferrer"
           className="block"
         >
-          <div className="relative aspect-video bg-muted rounded-lg overflow-hidden group cursor-pointer">
-            {/* Decorative map pattern */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/10">
-              <svg
-                className="absolute inset-0 w-full h-full opacity-10"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-              >
-                {/* Grid lines */}
-                {[...Array(10)].map((_, i) => (
-                  <line
-                    key={`h-${i}`}
-                    x1="0"
-                    y1={i * 10}
-                    x2="100"
-                    y2={i * 10}
-                    stroke="currentColor"
-                    strokeWidth="0.5"
-                  />
-                ))}
-                {[...Array(10)].map((_, i) => (
-                  <line
-                    key={`v-${i}`}
-                    x1={i * 10}
-                    y1="0"
-                    x2={i * 10}
-                    y2="100"
-                    stroke="currentColor"
-                    strokeWidth="0.5"
-                  />
-                ))}
-              </svg>
-            </div>
+          <div className="relative aspect-video rounded-lg overflow-hidden">
+            <iframe
+              title="Ubicación de la propiedad"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              src={
+                hasCoordinates
+                  ? `https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`
+                  : `https://www.google.com/maps?q=${encodeURIComponent(fullAddress)}&output=embed`
+              }
+            />
             
-            {/* Center marker */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative">
-                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                  <MapPin className="w-6 h-6 text-primary-foreground" />
-                </div>
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rotate-45 -z-10" />
-              </div>
-            </div>
-
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-lg px-4 py-2 shadow-lg flex items-center gap-2">
-                <ExternalLink className="w-4 h-4" />
-                <span className="text-sm font-medium">Ver en Google Maps</span>
-              </div>
-            </div>
+            {/* Overlay para abrir en nueva pestaña */}
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute top-2 right-2 bg-white rounded-lg px-3 py-1.5 shadow-md flex items-center gap-2 hover:bg-gray-50 transition-colors"
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span className="text-sm font-medium">Ampliar</span>
+            </a>
           </div>
         </a>
 

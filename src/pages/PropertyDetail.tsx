@@ -82,7 +82,7 @@ const PropertyDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-16 pb-24 lg:pb-8">
+      <main className="pt-16 pb-8">
         <div className="container mx-auto px-4 py-6 md:py-8">
           {/* Back link */}
           <Link
@@ -128,9 +128,6 @@ const PropertyDetail = () => {
           </div>
         </div>
       </main>
-
-      {/* Mobile Contact Bar */}
-      <PropertyContactCard property={property} />
 
       <Footer />
     </div>

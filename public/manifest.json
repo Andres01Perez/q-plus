@@ -1,0 +1,17 @@
+{
+  "name": "Q+ Inmobiliaria",
+  "short_name": "Q+",
+  "description": "Encuentra tu hogar ideal con Q+ Inmobiliaria",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066CC",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}

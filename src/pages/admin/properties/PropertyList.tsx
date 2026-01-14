@@ -163,23 +163,23 @@ const PropertyList = () => {
             </Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div>
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
-                  <th className="px-6 py-4 text-left font-body text-sm font-medium text-muted-foreground">
+                  <th className="px-4 sm:px-6 py-4 text-left font-body text-sm font-medium text-muted-foreground">
                     Propiedad
                   </th>
-                  <th className="px-6 py-4 text-left font-body text-sm font-medium text-muted-foreground hidden md:table-cell">
+                  <th className="px-4 sm:px-6 py-4 text-left font-body text-sm font-medium text-muted-foreground hidden md:table-cell">
                     Ciudad
                   </th>
-                  <th className="px-6 py-4 text-left font-body text-sm font-medium text-muted-foreground hidden lg:table-cell">
+                  <th className="px-4 sm:px-6 py-4 text-left font-body text-sm font-medium text-muted-foreground hidden lg:table-cell">
                     Precio
                   </th>
-                  <th className="px-6 py-4 text-left font-body text-sm font-medium text-muted-foreground">
+                  <th className="px-4 sm:px-6 py-4 text-left font-body text-sm font-medium text-muted-foreground hidden sm:table-cell">
                     Estado
                   </th>
-                  <th className="px-6 py-4 text-right font-body text-sm font-medium text-muted-foreground">
+                  <th className="px-4 sm:px-6 py-4 text-right font-body text-sm font-medium text-muted-foreground">
                     Acciones
                   </th>
                 </tr>
@@ -189,25 +189,25 @@ const PropertyList = () => {
                   const badge = getStatusBadge(property.status);
                   return (
                     <tr key={property.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="px-6 py-4">
-                        <p className="font-body font-medium text-foreground line-clamp-1">
+                      <td className="px-4 sm:px-6 py-4">
+                        <p className="font-body font-medium text-foreground">
                           {property.title}
                         </p>
                       </td>
-                      <td className="px-6 py-4 hidden md:table-cell">
+                      <td className="px-4 sm:px-6 py-4 hidden md:table-cell">
                         <p className="font-body text-sm text-muted-foreground">
                           {property.city || '—'}
                         </p>
                       </td>
-                      <td className="px-6 py-4 hidden lg:table-cell">
+                      <td className="px-4 sm:px-6 py-4 hidden lg:table-cell">
                         <p className="font-body text-sm text-foreground">
                           {property.price_sale ? formatPrice(property.price_sale) : '—'}
                         </p>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 sm:px-6 py-4 hidden sm:table-cell">
                         <Badge variant={badge.variant}>{badge.label}</Badge>
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 sm:px-6 py-4 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">

@@ -250,7 +250,7 @@ export default function BlocksConfig() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-9 w-9"
+                            className="h-9 w-9 [&:hover_svg]:text-white"
                             onClick={() => handleEditBlock(block)}
                           >
                             <Pencil className="h-4 w-4" />
@@ -258,7 +258,7 @@ export default function BlocksConfig() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-9 w-9"
+                            className="h-9 w-9 [&:hover_svg]:text-white"
                             onClick={() => setDeleteBlockDialog({ open: true, block })}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
@@ -269,6 +269,18 @@ export default function BlocksConfig() {
 
                     <CollapsibleContent>
                       <CardContent className="pt-0 px-3 sm:px-6">
+                        {/* Top add attribute button */}
+                        <div className="pb-3">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-start text-muted-foreground hover:text-foreground [&:hover_svg]:text-white"
+                            onClick={() => handleCreateAttribute(block)}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Agregar atributo
+                          </Button>
+                        </div>
                         <div className="border rounded-lg divide-y overflow-hidden">
                           {block.attributes.length === 0 ? (
                             <div className="p-4 text-center text-muted-foreground text-sm">
@@ -302,7 +314,7 @@ export default function BlocksConfig() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8"
+                                    className="h-8 w-8 [&:hover_svg]:text-white"
                                     onClick={() => handleEditAttribute(attr, block.name)}
                                   >
                                     <Pencil className="h-3.5 w-3.5" />
@@ -310,7 +322,7 @@ export default function BlocksConfig() {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8"
+                                    className="h-8 w-8 [&:hover_svg]:text-white"
                                     onClick={() => setDeleteAttrDialog({ open: true, attr })}
                                   >
                                     <Trash2 className="h-3.5 w-3.5 text-destructive" />
@@ -323,7 +335,7 @@ export default function BlocksConfig() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="w-full justify-start text-muted-foreground hover:text-foreground"
+                              className="w-full justify-start text-muted-foreground hover:text-foreground [&:hover_svg]:text-white"
                               onClick={() => handleCreateAttribute(block)}
                             >
                               <Plus className="h-4 w-4 mr-2" />

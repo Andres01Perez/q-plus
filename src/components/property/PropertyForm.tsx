@@ -74,34 +74,44 @@ export function PropertyForm({ propertyId }: PropertyFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col min-h-full">
+    <form onSubmit={handleSubmit} className="flex flex-col min-h-full overflow-hidden">
       {/* Sticky Header - full width background */}
       <div className="sticky top-0 z-20 bg-background border-b">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">
-            {propertyId ? "Editar Propiedad" : "Nueva Propiedad"}
-          </h1>
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/admin/propiedades")}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSaving || !formData.title.trim()}>
-              {isSaving ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Guardar
-                </>
-              )}
-            </Button>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold truncate min-w-0">
+              {propertyId ? "Editar Propiedad" : "Nueva Propiedad"}
+            </h1>
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="flex-1 sm:flex-none"
+                onClick={() => navigate("/admin/propiedades")}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                type="submit" 
+                size="sm"
+                className="flex-1 sm:flex-none"
+                disabled={isSaving || !formData.title.trim()}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <span className="hidden sm:inline">Guardando...</span>
+                    <span className="sm:hidden">...</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Guardar
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

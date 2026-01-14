@@ -72,14 +72,14 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8 overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground truncate">
             Dashboard
           </h1>
-          <p className="font-body text-muted-foreground mt-1">
+          <p className="font-body text-muted-foreground text-sm sm:text-base mt-1">
             Bienvenido al panel de administración Q+
           </p>
         </div>
@@ -92,7 +92,7 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {statCards.map((stat) => (
           <div 
             key={stat.label}
@@ -114,7 +114,7 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-card rounded-xl p-6 shadow-card">
           <h2 className="font-display text-lg font-semibold mb-4">Acciones Rápidas</h2>
           <div className="space-y-3">

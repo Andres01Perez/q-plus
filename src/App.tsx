@@ -13,6 +13,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import PropertyList from "./pages/admin/properties/PropertyList";
 import PropertyCreate from "./pages/admin/properties/PropertyCreate";
 import PropertyEdit from "./pages/admin/properties/PropertyEdit";
+import BlocksConfig from "./pages/admin/configuracion/BlocksConfig";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="propiedades" element={<PropertyList />} />
               <Route path="propiedades/nueva" element={<PropertyCreate />} />
               <Route path="propiedades/:id" element={<PropertyEdit />} />
+              <Route path="configuracion/bloques" element={<BlocksConfig />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

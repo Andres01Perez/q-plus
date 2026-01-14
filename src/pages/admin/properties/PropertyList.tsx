@@ -111,28 +111,30 @@ const PropertyList = () => {
   };
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8 overflow-hidden">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-display text-2xl lg:text-3xl font-bold text-foreground">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-foreground truncate">
             Propiedades
           </h1>
-          <p className="font-body text-muted-foreground mt-1">
+          <p className="font-body text-muted-foreground text-sm sm:text-base mt-1">
             Gestiona tu inventario inmobiliario
           </p>
         </div>
-        <Link to="/admin/propiedades/nueva">
-          <Button className="gap-2">
-            <Plus className="h-5 w-5" />
-            Nueva Propiedad
-          </Button>
-        </Link>
+        <div className="flex-shrink-0">
+          <Link to="/admin/propiedades/nueva">
+            <Button className="gap-2 w-full sm:w-auto">
+              <Plus className="h-5 w-5" />
+              Nueva Propiedad
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Search */}
-      <div className="mb-6">
-        <div className="relative max-w-md">
+      <div className="mb-4 sm:mb-6">
+        <div className="relative w-full sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
@@ -248,16 +250,16 @@ const PropertyList = () => {
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="max-w-[calc(100%-2rem)] sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>¿Eliminar propiedad?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta acción no se puede deshacer. La propiedad será eliminada permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogFooter className="flex-col gap-2 sm:flex-row">
+            <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="w-full sm:w-auto bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -10,6 +10,8 @@ import {
   CarouselNext,
   type CarouselApi,
 } from "@/components/ui/carousel";
+import { OptimizedImage } from "@/components/ui/optimized-image";
+import { getSizesForGalleryMain, getSizesForGalleryThumb, getOptimizedUrl } from "@/lib/image-utils";
 import type { PropertyMedia } from "@/types/property";
 import { cn } from "@/lib/utils";
 
@@ -119,6 +121,9 @@ const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
   const renderMediaCell = (item: PropertyMedia, index: number, isMain: boolean = false) => {
     const isLastCell = index === MAX_VISIBLE - 2 && hasMoreImages; // Last visible small cell
     
+    const sizes = isMain ? getSizesForGalleryMain() : getSizesForGalleryThumb();
+    const optimizedWidth = isMain ? 1200 : 400;
+    
     return (
       <div
         key={item.id}
@@ -130,12 +135,16 @@ const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
       >
         {item.type === "video" ? (
           <>
-            <img
+            <OptimizedImage
               src={getPreviewUrl(item)}
               alt={item.caption || `${title} - ${index + 1}`}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes={sizes}
+              width={optimizedWidth}
+              priority={isMain}
+              className="w-full h-full transition-transform duration-300 group-hover:scale-105"
+              aspectRatio="auto"
             />
-            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
               <div className={cn(
                 "rounded-full bg-white/90 flex items-center justify-center",
                 isMain ? "w-16 h-16" : "w-10 h-10"
@@ -148,10 +157,14 @@ const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
             </div>
           </>
         ) : (
-          <img
+          <OptimizedImage
             src={item.url}
             alt={item.caption || `${title} - ${index + 1}`}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes={sizes}
+            width={optimizedWidth}
+            priority={isMain}
+            className="w-full h-full transition-transform duration-300 group-hover:scale-105"
+            aspectRatio="auto"
           />
         )}
         
@@ -199,22 +212,28 @@ const PropertyGallery = ({ media, title }: PropertyGalleryProps) => {
                 >
                   {item.type === "video" ? (
                     <>
-                      <img
+                      <OptimizedImage
                         src={getPreviewUrl(item)}
                         alt={item.caption || `${title} - ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        width={800}
+                        priority={index === 0}
+                        className="w-full h-full"
+                        aspectRatio="auto"
                       />
-                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
                         <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center">
                           <Play className="w-8 h-8 text-foreground ml-1" />
                         </div>
                       </div>
                     </>
                   ) : (
-                    <img
+                    <OptimizedImage
                       src={item.url}
                       alt={item.caption || `${title} - ${index + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      width={800}
+                      priority={index === 0}
+                      className="w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      aspectRatio="auto"
                     />
                   )}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />

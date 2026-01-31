@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Image, Video, Plus, Trash2, Star, GripVertical, Upload, Link, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getThumbnailUrl } from "@/lib/image-utils";
 import type { MediaFormItem, MediaType } from "@/types/property";
 
 interface PropertyMediaSectionProps {
@@ -265,7 +266,8 @@ export function PropertyMediaSection({ mediaItems, onChange, propertyId }: Prope
 
   const getPreviewUrl = (item: MediaFormItem): string | null => {
     if (item.type === "image") {
-      return item.url;
+      // Use optimized thumbnail for form previews (96px thumbnails)
+      return getThumbnailUrl(item.url, 96);
     }
     if (item.provider === "youtube") {
       return getYouTubeThumbnail(item.url);

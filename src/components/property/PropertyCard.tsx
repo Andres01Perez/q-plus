@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Bed, Bath, Maximize, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-
+import { OptimizedImage } from '@/components/ui/optimized-image';
+import { getSizesForCard } from '@/lib/image-utils';
 interface PropertyCardProps {
   id: string;
   slug: string;
@@ -60,12 +61,14 @@ const PropertyCard = ({
     >
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img
+        <OptimizedImage
           src={mainImage || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop'}
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          sizes={getSizesForCard()}
+          className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+          aspectRatio="auto"
         />
-        <div className="absolute inset-0 gradient-overlay opacity-60" />
+        <div className="absolute inset-0 gradient-overlay opacity-60 pointer-events-none" />
         
         {/* Status Badge */}
         <div className="absolute top-4 left-4">

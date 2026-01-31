@@ -1,129 +1,151 @@
 
 
-## Diagnóstico del Problema
+## Plan: Herramientas de Optimizacion de Imagenes
 
-### Causa Raíz Identificada
+### Situacion Actual
 
-El problema NO es un bug de código, sino una **restricción de seguridad (RLS)** que funciona correctamente.
+Actualmente las imagenes se cargan directamente desde la URL completa sin ninguna optimizacion:
 
-**Evidencia encontrada en los logs de red:**
-- La solicitud PATCH se envía con `"area_m2": 211` (valor correcto)
-- El servidor responde `204 No Content` (sin error)
-- Pero la base de datos NO actualiza la fila porque el usuario actual NO es el creador
+| Problema | Impacto |
+|----------|---------|
+| Imagenes a resolucion completa | Cargas lentas, especialmente en movil |
+| Sin lazy loading | Todas las imagenes cargan de inmediato |
+| Sin placeholder mientras carga | Experiencia visual pobre |
+| Sin srcset/sizes | Imagenes no optimizadas para cada dispositivo |
 
-**Datos relevantes:**
-| Campo | Valor |
-|-------|-------|
-| Creador original de la propiedad | `517bd35c-fffe-4404-a5d6-6a47c7b4fa4d` |
-| Usuario actual intentando editar | `e273dfb1-0af7-45b9-85f3-ee2a924c6cb3` |
+### Solucion Propuesta
 
-**Política RLS actual:**
-```sql
-Policy Name: Owners can update properties
-Command: UPDATE
-USING (auth.uid() = created_by)
-```
-
-Esto significa que solo el usuario que creó la propiedad puede editarla.
+Implementar un sistema de optimizacion de imagenes con las siguientes caracteristicas:
 
 ---
 
-## Plan de Solución
+### 1. Componente OptimizedImage
 
-Proponemos **dos mejoras** para resolver este problema:
+Crear un componente reutilizable que maneje todas las optimizaciones:
 
-### 1. Agregar Rol de Administrador a la Política RLS
-
-Modificar la política para que los administradores (usuarios con `is_admin = true` en la tabla `profiles`) también puedan editar cualquier propiedad.
-
-**Migración SQL:**
-```sql
--- Eliminar política actual
-DROP POLICY IF EXISTS "Owners can update properties" ON properties;
-
--- Crear nueva política que permite a propietarios Y administradores
-CREATE POLICY "Owners and admins can update properties"
-  ON properties FOR UPDATE
-  USING (
-    auth.uid() = created_by 
-    OR 
-    EXISTS (
-      SELECT 1 FROM profiles 
-      WHERE profiles.user_id = auth.uid() 
-      AND profiles.is_admin = true
-    )
-  );
-
--- También actualizar la política de DELETE para consistencia
-DROP POLICY IF EXISTS "Owners can delete properties" ON properties;
-
-CREATE POLICY "Owners and admins can delete properties"
-  ON properties FOR DELETE
-  USING (
-    auth.uid() = created_by 
-    OR 
-    EXISTS (
-      SELECT 1 FROM profiles 
-      WHERE profiles.user_id = auth.uid() 
-      AND profiles.is_admin = true
-    )
-  );
+```text
++------------------------------------------+
+|  OptimizedImage Component                 |
+|  +------------------------------------+  |
+|  |  - Lazy loading nativo            |  |
+|  |  - Placeholder blur mientras carga |  |
+|  |  - srcset para diferentes tamaños  |  |
+|  |  - Transicion suave al cargar      |  |
+|  |  - Fallback en caso de error       |  |
+|  +------------------------------------+  |
++------------------------------------------+
 ```
 
-### 2. Mejorar el Manejo de Errores en el Código
+**Archivo:** `src/components/ui/optimized-image.tsx`
 
-Modificar `usePropertyForm.ts` para verificar si el UPDATE realmente afectó filas y mostrar un mensaje de error claro si no se pudo actualizar.
-
-**Cambios en `src/hooks/usePropertyForm.ts`:**
-
-```typescript
-// En la función saveProperty, después del update:
-if (propertyId) {
-  const { data, error, count } = await supabase
-    .from("properties")
-    .update(propertyData)
-    .eq("id", propertyId)
-    .select()  // Agregar select para obtener datos
-    .single(); // Obtener una fila
-
-  if (error) throw error;
-  
-  // Verificar si se actualizó algo
-  if (!data) {
-    toast({
-      title: "Sin permisos",
-      description: "No tienes permisos para editar esta propiedad",
-      variant: "destructive",
-    });
-    return null;
-  }
-  
-  savedPropertyId = propertyId;
+```tsx
+interface OptimizedImageProps {
+  src: string;
+  alt: string;
+  className?: string;
+  sizes?: string;
+  priority?: boolean; // Para imagenes above-the-fold
+  aspectRatio?: "video" | "square" | "portrait";
 }
 ```
 
 ---
 
-## Resumen de Archivos a Modificar
+### 2. Utilidad para Transformar URLs de Storage
 
-| Archivo | Cambio |
-|---------|--------|
-| **Migración SQL** | Actualizar políticas RLS para incluir administradores |
-| `src/hooks/usePropertyForm.ts` | Mejorar detección de errores de permisos |
+Aprovechando que Lovable Cloud Storage soporta transformaciones de imagenes, crear una utilidad para generar diferentes tamaños:
+
+**Archivo:** `src/lib/image-utils.ts`
+
+```typescript
+// Generar URL optimizada con parametros de transformacion
+export function getOptimizedUrl(url: string, options: {
+  width?: number;
+  quality?: number;
+}): string;
+
+// Generar srcset para imagenes responsivas
+export function generateSrcSet(url: string): string;
+
+// Generar URL de thumbnail para previews
+export function getThumbnailUrl(url: string): string;
+```
 
 ---
 
-## Sección Tecnica
+### 3. Actualizar Componentes Existentes
 
-### Por que el Status 204 no indica error
+| Componente | Cambios |
+|------------|---------|
+| `PropertyGallery.tsx` | Usar OptimizedImage con lazy loading, thumbnails optimizados para grid |
+| `PropertyCard.tsx` | Usar OptimizedImage con placeholder blur |
+| `PropertyMediaSection.tsx` | Thumbnails de 96px para previews del formulario |
 
-Supabase/PostgREST devuelve `204 No Content` para operaciones UPDATE exitosas, pero esto NO garantiza que se haya modificado alguna fila. Cuando RLS filtra las filas, el UPDATE simplemente no encuentra coincidencias y devuelve exito sin modificar nada.
+---
 
-### Solucion Robusta
+### 4. Implementar Lazy Loading Inteligente
 
-Usar `.select()` despues del `.update()` nos permite obtener la fila actualizada. Si no hay datos devueltos, significa que:
-1. La fila no existe, o
-2. RLS impidio la actualizacion
+- **Imagen principal de galeria:** `priority={true}` - carga inmediata
+- **Imagenes secundarias del grid:** lazy loading nativo
+- **Imagenes en carousel movil:** solo cargar las visibles +1
+- **Imagenes en lightbox:** cargar bajo demanda
 
-En ambos casos, debemos informar al usuario en lugar de mostrar un mensaje de exito falso.
+---
+
+### 5. Estados de Carga con Skeleton
+
+Agregar estados visuales durante la carga:
+
+```text
+Estado: Cargando          Estado: Cargado
++------------------+      +------------------+
+|  ░░░░░░░░░░░░░  |      |                  |
+|  ░░ Skeleton ░░  | -->  |     Imagen       |
+|  ░░░░░░░░░░░░░  |      |    (fade-in)     |
++------------------+      +------------------+
+```
+
+---
+
+## Archivos a Crear
+
+| Archivo | Descripcion |
+|---------|-------------|
+| `src/lib/image-utils.ts` | Utilidades para transformar URLs |
+| `src/components/ui/optimized-image.tsx` | Componente de imagen optimizada |
+
+## Archivos a Modificar
+
+| Archivo | Cambios |
+|---------|---------|
+| `src/components/property/PropertyCard.tsx` | Usar OptimizedImage |
+| `src/components/property/detail/PropertyGallery.tsx` | Lazy loading + OptimizedImage |
+| `src/components/property/form/PropertyMediaSection.tsx` | Thumbnails optimizados |
+
+---
+
+## Seccion Tecnica
+
+### Estrategia de Optimizacion
+
+1. **Lazy Loading Nativo**: Usar el atributo `loading="lazy"` que es soportado por todos los navegadores modernos (+95% de usuarios).
+
+2. **Placeholder con Skeleton**: Mostrar un skeleton animado mientras la imagen carga, con transicion fade-in cuando termina.
+
+3. **Deteccion de Storage**: Si la URL viene de Lovable Cloud Storage, aplicar parametros de transformacion para redimensionar en servidor.
+
+4. **Sizes Attribute**: Definir tamaños esperados para que el navegador descargue la imagen correcta:
+   - Cards: `(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw`
+   - Galeria principal: `(max-width: 768px) 100vw, 60vw`
+
+5. **IntersectionObserver para Lightbox**: Solo cargar imagenes del lightbox cuando el usuario las solicita.
+
+### Beneficios Esperados
+
+| Metrica | Mejora Estimada |
+|---------|-----------------|
+| Tiempo de carga inicial | -40% a -60% |
+| Datos transferidos en lista | -50% a -70% |
+| Core Web Vitals (LCP) | Mejora significativa |
+| Experiencia en movil | Mucho mas fluida |
 

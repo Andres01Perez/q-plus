@@ -263,13 +263,26 @@ export function usePropertyForm({ propertyId }: UsePropertyFormOptions = {}): Us
       let savedPropertyId: string;
 
       if (propertyId) {
-        // Update existing property
-        const { error } = await supabase
+        // Update existing property - use .select() to verify the update worked
+        const { data, error } = await supabase
           .from("properties")
           .update(propertyData)
-          .eq("id", propertyId);
+          .eq("id", propertyId)
+          .select()
+          .maybeSingle();
 
         if (error) throw error;
+        
+        // Check if update actually affected a row (RLS might block it silently)
+        if (!data) {
+          toast({
+            title: "Sin permisos",
+            description: "No tienes permisos para editar esta propiedad. Solo el creador o un administrador pueden modificarla.",
+            variant: "destructive",
+          });
+          return null;
+        }
+        
         savedPropertyId = propertyId;
       } else {
         // Create new property

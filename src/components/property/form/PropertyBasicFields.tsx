@@ -217,14 +217,14 @@ export function PropertyBasicFields({
               </Label>
               <Input
                 id="area_m2"
-                type="number"
-                min="0"
-                step="0.01"
+                type="text"
                 value={formData.area_m2 ?? ""}
-                onChange={(e) =>
-                  onFieldChange("area_m2", e.target.value ? Number(e.target.value) : null)
-                }
-                placeholder="0"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const num = parseFloat(val);
+                  onFieldChange("area_m2", val === "" ? null : (isNaN(num) ? null : num));
+                }}
+                placeholder="Ej: 120"
               />
             </div>
           </div>

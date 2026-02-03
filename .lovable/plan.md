@@ -1,141 +1,73 @@
 
+## Plan: Corregir Logo del Sidebar Admin
 
-## Plan: Propiedades Reales desde Base de Datos
+### Problema Identificado
 
-### Situacion Actual
+El logo en el sidebar del panel administrativo aparece como un cuadrado blanco debido a los filtros CSS `brightness-0 invert` aplicados en la línea 89 de `AdminLayout.tsx`.
 
-El componente `Index.tsx` utiliza un array `mockProperties` con datos ficticios. Necesitamos reemplazar esto con propiedades reales de la base de datos.
+### Causa Raíz
 
-### Cambios Propuestos
-
-**Archivo a modificar:** `src/pages/Index.tsx`
-
----
-
-### 1. Agregar Query a Base de Datos
-
-Usar el mismo patron que `Properties.tsx` para obtener propiedades reales:
-
-```text
-Antes:                          Despues:
-+------------------+            +------------------+
-| const mockProps  |    -->     | useEffect +      |
-| = [...]          |            | supabase query   |
-| (datos fijos)    |            | (datos reales)   |
-+------------------+            +------------------+
+```css
+brightness-0  /* Convierte toda la imagen a negro solido */
+invert        /* Invierte negro a blanco */
 ```
 
-**Query a implementar:**
-- Obtener propiedades con `status != 'draft'`
-- Incluir `property_media` para imagen principal
-- Limitar a 3 resultados
-- Ordenar por fecha de creacion (mas recientes primero)
+Esta combinacion aplana cualquier logo con detalles o colores a un rectangulo blanco solido.
 
 ---
 
-### 2. Agregar Estado de Carga
+### Solucion Propuesta
 
-Implementar estado loading con skeleton animado mientras cargan las propiedades:
+**Archivo a modificar:** `src/pages/admin/AdminLayout.tsx`
+
+**Cambio:** Remover los filtros CSS problematicos y ajustar el contraste de forma mas sutil.
 
 ```text
-+------------+  +------------+  +------------+
-| ░░░░░░░░░ |  | ░░░░░░░░░ |  | ░░░░░░░░░ |
-| ░ Loading |  | ░ Loading |  |   Call    |
-| ░░░░░░░░░ |  | ░░░░░░░░░ |  | to Action |
-+------------+  +------------+  +------------+
-  Propiedad 1    Propiedad 2    Ver todas
+Antes (linea 89):
+<img src={logo} className="h-10 w-auto brightness-0 invert" />
+                                    ^^^^^^^^^^^^^^^^^^^^
+                                    Causa el cuadrado blanco
+
+Despues:
+<img src={logo} className="h-10 w-auto" />
 ```
 
 ---
 
-### 3. Tarjeta Call-to-Action
+### Alternativas de Estilo
 
-Agregar una cuarta tarjeta como call-to-action que lleve a `/propiedades`:
+Si el logo necesita adaptarse al fondo oscuro del sidebar, hay opciones mas elegantes:
 
-| Elemento | Descripcion |
-|----------|-------------|
-| Estilo | Mismo tamaño que PropertyCard pero con diseño diferente |
-| Icono | Flecha o icono de "ver mas" |
-| Texto | "Ver todas las propiedades" |
-| Accion | Navegar a `/propiedades` |
-
-**Diseño propuesto:**
-```text
-+------------------------+
-|                        |
-|     [Icono Flecha]     |
-|                        |
-|   Ver todas nuestras   |
-|      propiedades       |
-|                        |
-|   [X propiedades mas]  |
-+------------------------+
-```
+| Opcion | Clase CSS | Efecto |
+|--------|-----------|--------|
+| Sin filtro | (ninguna) | Logo original |
+| Contraste suave | `contrast-125 brightness-110` | Mejora visibilidad |
+| Drop shadow | `drop-shadow-lg` | Agrega sombra para destacar |
 
 ---
 
-### 4. Estructura del Grid
+### Impacto
 
-El grid mantendra 2 columnas en desktop pero mostrara:
-
-| Posicion | Contenido |
-|----------|-----------|
-| 1 | Propiedad real #1 |
-| 2 | Propiedad real #2 |
-| 3 | Propiedad real #3 |
-| 4 | Tarjeta Call-to-Action |
+Solo afecta el logo del sidebar en el panel de administracion. Los otros usos del logo (loading screen, mobile header) no tienen estos filtros y se mostraran correctamente.
 
 ---
 
 ## Seccion Tecnica
 
-### Imports a Agregar
+### Ubicaciones del Logo en AdminLayout.tsx
 
-```typescript
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Skeleton } from '@/components/ui/skeleton';
+| Linea | Contexto | Clases actuales | Cambio necesario |
+|-------|----------|-----------------|------------------|
+| 60 | Loading screen | `h-12 w-auto` | Ninguno |
+| 72 | Mobile header | `h-8 w-auto` | Ninguno |
+| 89 | Sidebar | `h-10 w-auto brightness-0 invert` | Remover filtros |
+
+### Codigo Final
+
+```tsx
+// Linea 89 - Cambiar de:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto brightness-0 invert" />
+
+// A:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto" />
 ```
-
-### Estado y Query
-
-```typescript
-const [properties, setProperties] = useState<Property[]>([]);
-const [loading, setLoading] = useState(true);
-
-useEffect(() => {
-  const loadFeaturedProperties = async () => {
-    const { data } = await supabase
-      .from('properties')
-      .select(`
-        id, slug, title, address, city,
-        price_sale, price_rent, display_price_mode,
-        bedrooms, bathrooms, area_m2, status,
-        property_media (url, is_main)
-      `)
-      .neq('status', 'draft')
-      .order('created_at', { ascending: false })
-      .limit(3);
-    
-    setProperties(data || []);
-    setLoading(false);
-  };
-  
-  loadFeaturedProperties();
-}, []);
-```
-
-### Logica para Imagen Principal
-
-```typescript
-const getMainImage = (property: Property) => {
-  const mainMedia = property.property_media?.find(m => m.is_main);
-  return mainMedia?.url || property.property_media?.[0]?.url;
-};
-```
-
-### Eliminar Codigo
-
-- Eliminar el array `mockProperties` (lineas 16-73)
-- Eliminar el boton "Ver todas las propiedades" que esta debajo del grid (ya que la cuarta tarjeta cumple esa funcion)
-

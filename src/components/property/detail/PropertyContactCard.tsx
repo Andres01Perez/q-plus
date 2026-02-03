@@ -44,8 +44,8 @@ const PropertyContactCard = ({ property }: PropertyContactCardProps) => {
   const [copied, setCopied] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
 
-  // Phone number - this should come from settings/config
-  const phoneNumber = "573001234567";
+  // Phone number - official Q+ Inmobiliaria contact
+  const phoneNumber = "573168754469";
 
   const shareMessage = `¡Mira esta propiedad! ${property.title}`;
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";

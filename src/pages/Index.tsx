@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Phone, Mail, MapPin, ArrowRight, Instagram, Youtube, Home } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import PropertyCard from '@/components/property/PropertyCard';
-import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useEffect } from "react";
+import { Phone, Mail, MapPin, ArrowRight, Instagram, Youtube, Home } from "lucide-react";
+import { Link } from "react-router-dom";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import PropertyCard from "@/components/property/PropertyCard";
+import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 
 // TikTok icon (not available in Lucide)
 const TikTokIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
   </svg>
 );
 
@@ -39,23 +39,25 @@ const Index = () => {
     const loadFeaturedProperties = async () => {
       // Get total count of non-draft properties
       const { count } = await supabase
-        .from('properties')
-        .select('*', { count: 'exact', head: true })
-        .neq('status', 'draft');
+        .from("properties")
+        .select("*", { count: "exact", head: true })
+        .neq("status", "draft");
 
       setTotalCount(count || 0);
 
       // Get featured properties
       const { data } = await supabase
-        .from('properties')
-        .select(`
+        .from("properties")
+        .select(
+          `
           id, slug, title, address, city,
           price_sale, price_rent, display_price_mode,
           bedrooms, bathrooms, area_m2, status,
           property_media (url, is_main)
-        `)
-        .neq('status', 'draft')
-        .order('created_at', { ascending: false })
+        `,
+        )
+        .neq("status", "draft")
+        .order("created_at", { ascending: false })
         .limit(3);
 
       setProperties(data || []);
@@ -66,7 +68,7 @@ const Index = () => {
   }, []);
 
   const getMainImage = (property: FeaturedProperty) => {
-    const mainMedia = property.property_media?.find(m => m.is_main);
+    const mainMedia = property.property_media?.find((m) => m.is_main);
     return mainMedia?.url || property.property_media?.[0]?.url;
   };
 
@@ -88,7 +90,7 @@ const Index = () => {
   );
 
   const CTACard = () => (
-    <Link 
+    <Link
       to="/propiedades"
       className="group block bg-primary/5 border-2 border-dashed border-primary/30 rounded-xl overflow-hidden hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 flex flex-col items-center justify-center min-h-[320px] p-6"
     >
@@ -99,10 +101,9 @@ const Index = () => {
         Ver todas nuestras propiedades
       </h3>
       <p className="font-body text-muted-foreground text-center mb-4">
-        {remainingCount > 0 
-          ? `${remainingCount} propiedad${remainingCount !== 1 ? 'es' : ''} más disponible${remainingCount !== 1 ? 's' : ''}`
-          : 'Explora nuestro catálogo completo'
-        }
+        {remainingCount > 0
+          ? `${remainingCount} propiedad${remainingCount !== 1 ? "es" : ""} más disponible${remainingCount !== 1 ? "s" : ""}`
+          : "Explora nuestro catálogo completo"}
       </p>
       <div className="flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all">
         <span>Explorar</span>
@@ -116,10 +117,10 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative pt-16 min-h-screen flex items-center justify-center">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: 'url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&h=1080&fit=crop)'
+            backgroundImage: "url(https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&h=1080&fit=crop)",
           }}
         >
           <div className="absolute inset-0 bg-foreground/70" />
@@ -129,7 +130,10 @@ const Index = () => {
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-background mb-6 animate-fade-in max-w-4xl mx-auto leading-tight">
             Donde tus sueños encuentran su dirección
           </h1>
-          <p className="font-body text-lg md:text-xl text-background/80 animate-slide-up max-w-2xl mx-auto" style={{ animationDelay: '0.2s' }}>
+          <p
+            className="font-body text-lg md:text-xl text-background/80 animate-slide-up max-w-2xl mx-auto"
+            style={{ animationDelay: "0.2s" }}
+          >
             Tu aliado de confianza en el camino hacia tu nuevo hogar
           </p>
         </div>
@@ -139,9 +143,7 @@ const Index = () => {
       <section className="py-20 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Propiedades Destacadas
-            </h2>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Propiedades Destacadas</h2>
             <p className="font-body text-muted-foreground max-w-2xl mx-auto">
               Descubre nuestras mejores opciones disponibles
             </p>
@@ -167,11 +169,11 @@ const Index = () => {
                     city={property.city || undefined}
                     price_sale={property.price_sale || undefined}
                     price_rent={property.price_rent || undefined}
-                    display_price_mode={property.display_price_mode || 'sale'}
+                    display_price_mode={property.display_price_mode || "sale"}
                     bedrooms={property.bedrooms || undefined}
                     bathrooms={property.bathrooms || undefined}
                     area_m2={property.area_m2 || undefined}
-                    status={property.status || 'available'}
+                    status={property.status || "available"}
                     mainImage={getMainImage(property)}
                   />
                 ))}
@@ -214,8 +216,8 @@ const Index = () => {
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                   <MapPin className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="font-display font-semibold mb-2">Dirección</h3>
-                <p className="font-body text-muted-foreground text-sm">Calle 100 #15-20, Bogotá</p>
+                <h3 className="font-display font-semibold mb-2">Conoce más</h3>
+                <p className="font-body text-muted-foreground text-sm">Contáctanos y agenda tu visita</p>
               </div>
             </div>
 
@@ -223,8 +225,8 @@ const Index = () => {
             <div className="text-center">
               <p className="font-body text-muted-foreground mb-4">Síguenos en redes</p>
               <div className="flex justify-center gap-4">
-                <a 
-                  href="https://www.instagram.com/qplus.inmobiliaria/" 
+                <a
+                  href="https://www.instagram.com/qplus.inmobiliaria/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-12 h-12 rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors"
@@ -232,8 +234,8 @@ const Index = () => {
                 >
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a 
-                  href="https://www.tiktok.com/@qplus_inmobiliaria" 
+                <a
+                  href="https://www.tiktok.com/@qplus_inmobiliaria"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-12 h-12 rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors"
@@ -241,8 +243,8 @@ const Index = () => {
                 >
                   <TikTokIcon className="h-5 w-5" />
                 </a>
-                <a 
-                  href="https://www.youtube.com/@QPlus_Inmobiliaria" 
+                <a
+                  href="https://www.youtube.com/@QPlus_Inmobiliaria"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-12 h-12 rounded-full bg-secondary hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors"

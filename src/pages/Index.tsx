@@ -1,4 +1,11 @@
-import { Phone, Mail, MapPin, ArrowRight, Instagram, Youtube } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Phone, Mail, MapPin, ArrowRight, Instagram, Youtube, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import PropertyCard from '@/components/property/PropertyCard';
+import { Skeleton } from '@/components/ui/skeleton';
+import { supabase } from '@/integrations/supabase/client';
 
 // TikTok icon (not available in Lucide)
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -6,73 +13,103 @@ const TikTokIcon = ({ className }: { className?: string }) => (
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
   </svg>
 );
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import PropertyCard from '@/components/property/PropertyCard';
 
-// Mockup properties data
-const mockProperties = [
-  {
-    id: '1',
-    slug: 'apartamento-moderno-chapinero',
-    title: 'Apartamento Moderno en Chapinero',
-    address: 'Calle 63 #10-45',
-    city: 'Bogotá',
-    price_sale: 450000000,
-    display_price_mode: 'sale',
-    bedrooms: 3,
-    bathrooms: 2,
-    area_m2: 85,
-    status: 'available',
-    mainImage: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop'
-  },
-  {
-    id: '2',
-    slug: 'casa-campestre-la-calera',
-    title: 'Casa Campestre en La Calera',
-    address: 'Vereda el Hato Km 5',
-    city: 'La Calera',
-    price_sale: 1200000000,
-    display_price_mode: 'sale',
-    bedrooms: 5,
-    bathrooms: 4,
-    area_m2: 320,
-    status: 'available',
-    mainImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop'
-  },
-  {
-    id: '3',
-    slug: 'penthouse-vista-usaquen',
-    title: 'Penthouse con Vista en Usaquén',
-    address: 'Carrera 7 #116-50',
-    city: 'Bogotá',
-    price_sale: 980000000,
-    display_price_mode: 'sale',
-    bedrooms: 4,
-    bathrooms: 3,
-    area_m2: 180,
-    status: 'available',
-    mainImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop'
-  },
-  {
-    id: '4',
-    slug: 'local-comercial-zona-rosa',
-    title: 'Local Comercial en Zona Rosa',
-    address: 'Calle 82 #12-15',
-    city: 'Bogotá',
-    price_rent: 8500000,
-    display_price_mode: 'rent',
-    bedrooms: 0,
-    bathrooms: 2,
-    area_m2: 120,
-    status: 'available',
-    mainImage: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600&fit=crop'
-  }
-];
+interface FeaturedProperty {
+  id: string;
+  slug: string;
+  title: string;
+  address: string | null;
+  city: string | null;
+  price_sale: number | null;
+  price_rent: number | null;
+  display_price_mode: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  area_m2: number | null;
+  status: string | null;
+  property_media: { url: string; is_main: boolean | null }[];
+}
 
 const Index = () => {
+  const [properties, setProperties] = useState<FeaturedProperty[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+
+  useEffect(() => {
+    const loadFeaturedProperties = async () => {
+      // Get total count of non-draft properties
+      const { count } = await supabase
+        .from('properties')
+        .select('*', { count: 'exact', head: true })
+        .neq('status', 'draft');
+
+      setTotalCount(count || 0);
+
+      // Get featured properties
+      const { data } = await supabase
+        .from('properties')
+        .select(`
+          id, slug, title, address, city,
+          price_sale, price_rent, display_price_mode,
+          bedrooms, bathrooms, area_m2, status,
+          property_media (url, is_main)
+        `)
+        .neq('status', 'draft')
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      setProperties(data || []);
+      setLoading(false);
+    };
+
+    loadFeaturedProperties();
+  }, []);
+
+  const getMainImage = (property: FeaturedProperty) => {
+    const mainMedia = property.property_media?.find(m => m.is_main);
+    return mainMedia?.url || property.property_media?.[0]?.url;
+  };
+
+  const remainingCount = Math.max(0, totalCount - 3);
+
+  const PropertySkeleton = () => (
+    <div className="bg-card rounded-xl overflow-hidden shadow-card">
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-5 space-y-3">
+        <Skeleton className="h-6 w-3/4" />
+        <Skeleton className="h-4 w-1/2" />
+        <div className="flex gap-4">
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="h-4 w-16" />
+        </div>
+      </div>
+    </div>
+  );
+
+  const CTACard = () => (
+    <Link 
+      to="/propiedades"
+      className="group block bg-primary/5 border-2 border-dashed border-primary/30 rounded-xl overflow-hidden hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 flex flex-col items-center justify-center min-h-[320px] p-6"
+    >
+      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+        <Home className="h-8 w-8 text-primary" />
+      </div>
+      <h3 className="font-display text-xl font-semibold text-foreground text-center mb-2">
+        Ver todas nuestras propiedades
+      </h3>
+      <p className="font-body text-muted-foreground text-center mb-4">
+        {remainingCount > 0 
+          ? `${remainingCount} propiedad${remainingCount !== 1 ? 'es' : ''} más disponible${remainingCount !== 1 ? 's' : ''}`
+          : 'Explora nuestro catálogo completo'
+        }
+      </p>
+      <div className="flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all">
+        <span>Explorar</span>
+        <ArrowRight className="h-5 w-5" />
+      </div>
+    </Link>
+  );
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -111,33 +148,36 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            {mockProperties.map((property) => (
-              <PropertyCard
-                key={property.id}
-                id={property.id}
-                slug={property.slug}
-                title={property.title}
-                address={property.address}
-                city={property.city}
-                price_sale={property.price_sale}
-                price_rent={property.price_rent}
-                display_price_mode={property.display_price_mode}
-                bedrooms={property.bedrooms}
-                bathrooms={property.bathrooms}
-                area_m2={property.area_m2}
-                status={property.status}
-                mainImage={property.mainImage}
-              />
-            ))}
-          </div>
-
-          <div className="text-center mt-10">
-            <Link to="/propiedades">
-              <Button size="lg" className="gap-2">
-                Ver todas las propiedades
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
+            {loading ? (
+              <>
+                <PropertySkeleton />
+                <PropertySkeleton />
+                <PropertySkeleton />
+                <CTACard />
+              </>
+            ) : (
+              <>
+                {properties.map((property) => (
+                  <PropertyCard
+                    key={property.id}
+                    id={property.id}
+                    slug={property.slug}
+                    title={property.title}
+                    address={property.address || undefined}
+                    city={property.city || undefined}
+                    price_sale={property.price_sale || undefined}
+                    price_rent={property.price_rent || undefined}
+                    display_price_mode={property.display_price_mode || 'sale'}
+                    bedrooms={property.bedrooms || undefined}
+                    bathrooms={property.bathrooms || undefined}
+                    area_m2={property.area_m2 || undefined}
+                    status={property.status || 'available'}
+                    mainImage={getMainImage(property)}
+                  />
+                ))}
+                <CTACard />
+              </>
+            )}
           </div>
         </div>
       </section>

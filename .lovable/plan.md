@@ -1,40 +1,73 @@
 
+## Plan: Corregir Logo del Sidebar Admin
 
-## Plan: Rediseño visual — Blanco + Negro + Azul Oscuro
+### Problema Identificado
 
-### Paleta nueva
-- Fondo principal: blanco (`#FFFFFF`)
-- Textos: negro (`#000000`) y azul oscuro (`#050A30`)
-- Acentos: azul oscuro para CTAs y badges
-- Eliminar todos los dorados/gold y fondos oscuros de las paginas publicas
+El logo en el sidebar del panel administrativo aparece como un cuadrado blanco debido a los filtros CSS `brightness-0 invert` aplicados en la línea 89 de `AdminLayout.tsx`.
 
-### Archivos a modificar
+### Causa Raíz
 
-| Archivo | Cambio |
-|---|---|
-| `src/components/home/HeroSection.tsx` | Reescribir completo: carrusel con 2 slides (propiedades + inversiones), altura 50vh, fondo blanco, imagenes mockup webp, textos negro/azul oscuro |
-| `src/components/home/FeaturedSlider.tsx` | Cambiar fondo de `bg-luxury-bg-alt` a blanco, textos negros, tabs con estilo azul oscuro, cards con bordes grises claros |
-| `src/pages/Index.tsx` | Cambiar `bg-luxury-bg` a `bg-white`, seccion contacto con textos negros, cards con bordes grises, iconos azul oscuro, redes sociales en negro |
-| `src/pages/Inversiones.tsx` | Rediseñar completo: fondo blanco, hero con overlay claro sobre imagen, metricas en azul oscuro, cards con fondo blanco y bordes grises, quiz CTA en azul oscuro, bloque confianza limpio |
-| `src/components/home/GridBackground.tsx` | Cambiar grid sutil a version clara (lineas gris muy claro en vez de gold) |
+```css
+brightness-0  /* Convierte toda la imagen a negro solido */
+invert        /* Invierte negro a blanco */
+```
 
-### Hero Carrusel — Detalle
+Esta combinacion aplana cualquier logo con detalles o colores a un rectangulo blanco solido.
 
-- Reemplazar el hero full-screen por un carrusel Embla (ya tenemos `embla-carousel-react` instalado) a **50vh** de altura
-- **Slide 1 — Propiedades**: Imagen mockup de propiedad moderna (webp via URL placeholder), headline "Tu proxima propiedad, una decision inteligente", CTA "Ver propiedades" → `/propiedades`
-- **Slide 2 — Inversiones**: Imagen mockup de skyline/inversion (webp via URL placeholder), headline "Invierte en el exterior con respaldo experto", CTA "Explorar inversiones" → `/inversiones`
-- Indicadores de puntos abajo, autoplay cada 5s
-- Textos sobre imagen con overlay sutil blanco/oscuro parcial
-- Animaciones de entrada con framer-motion
+---
 
-### Imagenes mockup webp
-- Usar URLs de Unsplash en formato webp (parametro `&fm=webp`) para carga rapida
-- Propiedades: imagen de casa moderna/apartamento
-- Inversiones: imagen de skyline/ciudad internacional
+### Solucion Propuesta
 
-### Inversiones — Cambios especificos
-- Hero: mantener imagen de fondo pero con overlay mas claro, textos en blanco sobre imagen, metricas en azul oscuro sobre fondo blanco debajo
-- Grid de oportunidades: cards blancas con sombra sutil, bordes gris claro, badges de tipo en azul oscuro, retorno en verde
-- Quiz CTA: fondo azul oscuro con texto blanco (en vez de gradiente gold)
-- Bloque confianza: fondo blanco, iconos azul oscuro, bordes gris claro
+**Archivo a modificar:** `src/pages/admin/AdminLayout.tsx`
 
+**Cambio:** Remover los filtros CSS problematicos y ajustar el contraste de forma mas sutil.
+
+```text
+Antes (linea 89):
+<img src={logo} className="h-10 w-auto brightness-0 invert" />
+                                    ^^^^^^^^^^^^^^^^^^^^
+                                    Causa el cuadrado blanco
+
+Despues:
+<img src={logo} className="h-10 w-auto" />
+```
+
+---
+
+### Alternativas de Estilo
+
+Si el logo necesita adaptarse al fondo oscuro del sidebar, hay opciones mas elegantes:
+
+| Opcion | Clase CSS | Efecto |
+|--------|-----------|--------|
+| Sin filtro | (ninguna) | Logo original |
+| Contraste suave | `contrast-125 brightness-110` | Mejora visibilidad |
+| Drop shadow | `drop-shadow-lg` | Agrega sombra para destacar |
+
+---
+
+### Impacto
+
+Solo afecta el logo del sidebar en el panel de administracion. Los otros usos del logo (loading screen, mobile header) no tienen estos filtros y se mostraran correctamente.
+
+---
+
+## Seccion Tecnica
+
+### Ubicaciones del Logo en AdminLayout.tsx
+
+| Linea | Contexto | Clases actuales | Cambio necesario |
+|-------|----------|-----------------|------------------|
+| 60 | Loading screen | `h-12 w-auto` | Ninguno |
+| 72 | Mobile header | `h-8 w-auto` | Ninguno |
+| 89 | Sidebar | `h-10 w-auto brightness-0 invert` | Remover filtros |
+
+### Codigo Final
+
+```tsx
+// Linea 89 - Cambiar de:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto brightness-0 invert" />
+
+// A:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto" />
+```

@@ -44,30 +44,30 @@ const FeaturedSlider = () => {
   const filtered = items.filter((i) => i.type === active);
 
   return (
-    <section className="py-20 bg-luxury-bg-alt">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4">
         <motion.h2
-          className="font-display text-3xl md:text-4xl font-bold text-white text-center mb-2"
+          className="font-display text-3xl md:text-4xl font-bold text-foreground text-center mb-2"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
           Explora nuestras opciones
         </motion.h2>
-        <p className="font-body text-white/50 text-center mb-10">
+        <p className="font-body text-muted-foreground text-center mb-10">
           Descubre lo que Q+ tiene para ti
         </p>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-1 mb-10 bg-luxury-bg rounded-lg p-1 max-w-xl mx-auto">
+        <div className="flex justify-center gap-1 mb-10 bg-secondary rounded-lg p-1 max-w-xl mx-auto">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActive(tab.key)}
               className={`flex-1 px-4 py-2.5 rounded-md text-sm font-display font-semibold transition-all ${
                 active === tab.key
-                  ? "bg-gold text-luxury-bg"
-                  : "text-white/60 hover:text-white"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {tab.label}
@@ -89,18 +89,18 @@ const FeaturedSlider = () => {
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex-shrink-0 w-80 h-96 rounded-xl bg-luxury-bg animate-pulse snap-start"
+                  className="flex-shrink-0 w-80 h-96 rounded-xl bg-secondary animate-pulse snap-start"
                 />
               ))
             ) : filtered.length === 0 ? (
-              <div className="w-full text-center py-16 text-white/40 font-body">
+              <div className="w-full text-center py-16 text-muted-foreground font-body">
                 No hay elementos disponibles en esta categoría.
               </div>
             ) : (
               filtered.map((item) => (
                 <motion.div
                   key={item.id}
-                  className="flex-shrink-0 w-80 rounded-xl overflow-hidden border border-gold/20 bg-luxury-bg group snap-start"
+                  className="flex-shrink-0 w-80 rounded-xl overflow-hidden border border-border bg-background group snap-start shadow-sm hover:shadow-md transition-shadow"
                   whileHover={{ y: -4 }}
                   transition={{ duration: 0.2 }}
                 >
@@ -114,18 +114,18 @@ const FeaturedSlider = () => {
                     </div>
                   )}
                   <div className="p-5">
-                    <h3 className="font-display text-lg font-semibold text-white mb-1">
+                    <h3 className="font-display text-lg font-semibold text-foreground mb-1">
                       {item.title}
                     </h3>
                     {item.subtitle && (
-                      <p className="font-body text-sm text-white/50 mb-4">
+                      <p className="font-body text-sm text-muted-foreground mb-4">
                         {item.subtitle}
                       </p>
                     )}
                     {item.cta_label && item.cta_url && (
                       <Link
                         to={item.cta_url}
-                        className="inline-flex items-center gap-1.5 text-gold text-sm font-semibold hover:gap-2.5 transition-all"
+                        className="inline-flex items-center gap-1.5 text-primary text-sm font-semibold hover:gap-2.5 transition-all"
                       >
                         {item.cta_label}
                         <ArrowRight className="h-4 w-4" />

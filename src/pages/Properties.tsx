@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -12,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
+const PAGE_SIZE = 8;
 
 interface Property {
   id: string;
@@ -34,28 +37,25 @@ const Properties = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [cityFilter, setCityFilter] = useState<string>('all');
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
     loadProperties();
   }, []);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery, cityFilter]);
 
   const loadProperties = async () => {
     try {
       const { data, error } = await supabase
         .from('properties')
         .select(`
-          id,
-          slug,
-          title,
-          address,
-          city,
-          price_sale,
-          price_rent,
-          display_price_mode,
-          bedrooms,
-          bathrooms,
-          area_m2,
-          status,
+          id, slug, title, address, city,
+          price_sale, price_rent, display_price_mode,
+          bedrooms, bathrooms, area_m2, status,
           property_media (url, is_main)
         `)
         .neq('status', 'draft')
@@ -70,30 +70,30 @@ const Properties = () => {
     }
   };
 
-  // Get unique cities for filter
   const cities = useMemo(() => {
     const uniqueCities = new Set(
-      properties
-        .map((p) => p.city)
-        .filter((city): city is string => !!city)
+      properties.map((p) => p.city).filter((city): city is string => !!city)
     );
     return Array.from(uniqueCities).sort();
   }, [properties]);
 
-  // Filter properties
   const filteredProperties = useMemo(() => {
     return properties.filter((property) => {
       const matchesSearch =
         property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         property.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         property.city?.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const matchesCity =
-        cityFilter === 'all' || property.city === cityFilter;
-
+      const matchesCity = cityFilter === 'all' || property.city === cityFilter;
       return matchesSearch && matchesCity;
     });
   }, [properties, searchQuery, cityFilter]);
+
+  const totalFiltered = filteredProperties.length;
+  const pageStart = page * PAGE_SIZE;
+  const pageItems = filteredProperties.slice(pageStart, pageStart + PAGE_SIZE);
+  const hasMore = pageStart + PAGE_SIZE < totalFiltered;
+  const displayItems = hasMore ? pageItems.slice(0, 7) : pageItems;
+  const remaining = totalFiltered - pageStart - displayItems.length;
 
   const getMainImage = (property: Property) => {
     const mainMedia = property.property_media?.find((m) => m.is_main);
@@ -104,7 +104,6 @@ const Properties = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero Section */}
       <section className="pt-24 pb-12 bg-secondary">
         <div className="container mx-auto px-4">
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
@@ -116,7 +115,6 @@ const Properties = () => {
         </div>
       </section>
 
-      {/* Filters */}
       <section className="py-6 border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -136,9 +134,7 @@ const Properties = () => {
               <SelectContent>
                 <SelectItem value="all">Todas las ciudades</SelectItem>
                 {cities.map((city) => (
-                  <SelectItem key={city} value={city}>
-                    {city}
-                  </SelectItem>
+                  <SelectItem key={city} value={city}>{city}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -146,16 +142,12 @@ const Properties = () => {
         </div>
       </section>
 
-      {/* Properties Grid */}
       <section className="py-12">
         <div className="container mx-auto px-4">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-muted animate-pulse rounded-xl h-80"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="bg-muted animate-pulse rounded-xl h-80" />
               ))}
             </div>
           ) : filteredProperties.length === 0 ? (
@@ -165,10 +157,7 @@ const Properties = () => {
               </p>
               {(searchQuery || cityFilter !== 'all') && (
                 <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setCityFilter('all');
-                  }}
+                  onClick={() => { setSearchQuery(''); setCityFilter('all'); }}
                   className="mt-4 text-primary hover:underline font-body"
                 >
                   Limpiar filtros
@@ -178,30 +167,66 @@ const Properties = () => {
           ) : (
             <>
               <p className="font-body text-muted-foreground mb-6">
-                {filteredProperties.length} propiedad
-                {filteredProperties.length !== 1 ? 'es' : ''} encontrada
-                {filteredProperties.length !== 1 ? 's' : ''}
+                {totalFiltered} propiedad{totalFiltered !== 1 ? 'es' : ''} encontrada{totalFiltered !== 1 ? 's' : ''}
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProperties.map((property) => (
-                  <PropertyCard
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {displayItems.map((property, index) => (
+                  <motion.div
                     key={property.id}
-                    id={property.id}
-                    slug={property.slug}
-                    title={property.title}
-                    address={property.address || undefined}
-                    city={property.city || undefined}
-                    price_sale={property.price_sale || undefined}
-                    price_rent={property.price_rent || undefined}
-                    display_price_mode={property.display_price_mode || 'sale'}
-                    bedrooms={property.bedrooms || undefined}
-                    bathrooms={property.bathrooms || undefined}
-                    area_m2={property.area_m2 || undefined}
-                    status={property.status || 'available'}
-                    mainImage={getMainImage(property)}
-                  />
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    <PropertyCard
+                      id={property.id}
+                      slug={property.slug}
+                      title={property.title}
+                      address={property.address || undefined}
+                      city={property.city || undefined}
+                      price_sale={property.price_sale || undefined}
+                      price_rent={property.price_rent || undefined}
+                      display_price_mode={property.display_price_mode || 'sale'}
+                      bedrooms={property.bedrooms || undefined}
+                      bathrooms={property.bathrooms || undefined}
+                      area_m2={property.area_m2 || undefined}
+                      status={property.status || 'available'}
+                      mainImage={getMainImage(property)}
+                    />
+                  </motion.div>
                 ))}
+
+                {hasMore && (
+                  <motion.button
+                    key={`see-more-${page}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 7 * 0.05 }}
+                    onClick={() => setPage((p) => p + 1)}
+                    className="group flex flex-col items-center justify-center gap-4 rounded-xl border border-border bg-muted/50 p-6 text-center transition-all duration-300 hover:border-primary hover:bg-primary/5 aspect-[4/3]"
+                  >
+                    <span className="font-display text-2xl font-bold text-foreground">
+                      + {remaining}
+                    </span>
+                    <span className="font-body text-muted-foreground">
+                      propiedad{remaining !== 1 ? 'es' : ''} más
+                    </span>
+                    <span className="inline-flex items-center gap-2 font-body text-sm font-medium text-primary group-hover:gap-3 transition-all">
+                      Ver más <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </motion.button>
+                )}
               </div>
+
+              {page > 0 && (
+                <div className="mt-8 text-center">
+                  <button
+                    onClick={() => setPage(0)}
+                    className="font-body text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Volver al inicio
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

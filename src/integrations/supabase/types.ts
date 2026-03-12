@@ -88,6 +88,48 @@ export type Database = {
         }
         Relationships: []
       }
+      featured_sections: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          cta_label: string | null
+          cta_url: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          subtitle: string | null
+          title: string
+          type: Database["public"]["Enums"]["featured_section_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          subtitle?: string | null
+          title: string
+          type: Database["public"]["Enums"]["featured_section_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          subtitle?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["featured_section_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -285,6 +327,7 @@ export type Database = {
     }
     Enums: {
       block_type: "checklist" | "details_list" | "free_text"
+      featured_section_type: "servicios" | "propiedades" | "inversiones"
       input_type: "checkbox" | "text" | "number" | "textarea"
       media_type: "image" | "video"
       price_display_mode: "sale" | "rent" | "both" | "hidden"
@@ -417,6 +460,7 @@ export const Constants = {
   public: {
     Enums: {
       block_type: ["checklist", "details_list", "free_text"],
+      featured_section_type: ["servicios", "propiedades", "inversiones"],
       input_type: ["checkbox", "text", "number", "textarea"],
       media_type: ["image", "video"],
       price_display_mode: ["sale", "rent", "both", "hidden"],

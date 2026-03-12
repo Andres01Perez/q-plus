@@ -10,7 +10,6 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import heroImg from '@/assets/investment-hero.jpg';
 
-/* ───── country → flag emoji helper ───── */
 const countryFlags: Record<string, string> = {
   'Estados Unidos': '🇺🇸', 'España': '🇪🇸', 'Portugal': '🇵🇹', 'Colombia': '🇨🇴',
   'México': '🇲🇽', 'Panamá': '🇵🇦', 'Costa Rica': '🇨🇷', 'Chile': '🇨🇱',
@@ -20,7 +19,6 @@ const countryFlags: Record<string, string> = {
 };
 const getFlag = (country: string) => countryFlags[country] ?? '🌍';
 
-/* ───── animated counter ───── */
 function AnimatedCounter({ target, suffix, prefix }: { target: number; suffix?: string; prefix?: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -46,7 +44,6 @@ function AnimatedCounter({ target, suffix, prefix }: { target: number; suffix?: 
   );
 }
 
-/* ───── types ───── */
 interface Investment {
   id: string;
   title: string;
@@ -66,7 +63,6 @@ const typeLabels: Record<string, string> = {
   fondo: 'Fondo',
 };
 
-/* ───── page ───── */
 export default function Inversiones() {
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,17 +80,17 @@ export default function Inversiones() {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ background: 'hsl(0 0% 4%)' }}>
+    <div className="min-h-screen bg-background">
       <Header />
 
       {/* ══════════ HERO ══════════ */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[70vh] min-h-[500px] mt-16 flex items-center justify-center overflow-hidden">
         <img
           src={heroImg}
           alt="Skyline internacional"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-[hsl(0,0%,4%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
           <motion.div
@@ -103,38 +99,15 @@ export default function Inversiones() {
             transition={{ duration: 0.7 }}
             className="max-w-3xl mx-auto"
           >
-            <Badge className="mb-6 bg-[hsl(var(--gold))] text-black font-semibold text-sm px-4 py-1.5 border-none">
+            <Badge className="mb-6 bg-primary text-primary-foreground font-semibold text-sm px-4 py-1.5 border-none">
               Inversiones Internacionales
             </Badge>
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
               Invierte en el exterior con respaldo experto
             </h1>
-
-            {/* Metrics */}
-            <div className="flex flex-wrap justify-center gap-8 md:gap-16 mt-10 mb-10">
-              {[
-                { target: 2, prefix: 'USD ', suffix: 'M+', label: 'gestionados' },
-                { target: 15, suffix: '+', label: 'países' },
-                { target: 200, suffix: '+', label: 'inversores' },
-              ].map((m, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + i * 0.15 }}
-                  className="text-center"
-                >
-                  <p className="text-3xl md:text-4xl font-bold text-[hsl(var(--gold))]">
-                    <AnimatedCounter target={m.target} suffix={m.suffix} prefix={m.prefix} />
-                  </p>
-                  <p className="text-white/60 text-sm mt-1">{m.label}</p>
-                </motion.div>
-              ))}
-            </div>
-
             <Button
               size="lg"
-              className="bg-[hsl(var(--gold))] hover:bg-[hsl(var(--gold-dark))] text-black font-semibold text-base px-8 py-6 rounded-lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base px-8 py-6 rounded-lg"
               onClick={() => document.getElementById('quiz')?.scrollIntoView({ behavior: 'smooth' })}
             >
               Descubre tu perfil de inversor
@@ -144,8 +117,35 @@ export default function Inversiones() {
         </div>
       </section>
 
+      {/* ══════════ METRICS ══════════ */}
+      <section className="py-16 bg-background border-b border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-center gap-8 md:gap-16">
+            {[
+              { target: 2, prefix: 'USD ', suffix: 'M+', label: 'gestionados' },
+              { target: 15, suffix: '+', label: 'países' },
+              { target: 200, suffix: '+', label: 'inversores' },
+            ].map((m, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+                className="text-center"
+              >
+                <p className="text-3xl md:text-4xl font-bold text-primary">
+                  <AnimatedCounter target={m.target} suffix={m.suffix} prefix={m.prefix} />
+                </p>
+                <p className="text-muted-foreground text-sm mt-1">{m.label}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ══════════ GRID DE OPORTUNIDADES ══════════ */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 bg-background">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -153,10 +153,10 @@ export default function Inversiones() {
             viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
               Oportunidades de inversión
             </h2>
-            <p className="text-white/50 max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-xl mx-auto">
               Accede a propiedades y fondos seleccionados en los mercados más rentables del mundo.
             </p>
           </motion.div>
@@ -164,11 +164,11 @@ export default function Inversiones() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-72 rounded-xl bg-white/5" />
+                <Skeleton key={i} className="h-72 rounded-xl" />
               ))}
             </div>
           ) : investments.length === 0 ? (
-            <p className="text-center text-white/40 py-16">Próximamente nuevas oportunidades de inversión.</p>
+            <p className="text-center text-muted-foreground py-16">Próximamente nuevas oportunidades de inversión.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {investments.map((inv, i) => (
@@ -178,7 +178,7 @@ export default function Inversiones() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.07 }}
-                  className="group relative rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden hover:border-[hsl(var(--gold))]/40 transition-colors"
+                  className="group relative rounded-xl border border-border bg-background overflow-hidden shadow-sm hover:shadow-md transition-shadow"
                 >
                   {inv.image_url && (
                     <div className="h-44 overflow-hidden">
@@ -192,20 +192,20 @@ export default function Inversiones() {
                   <div className="p-5">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="text-lg">{getFlag(inv.country)}</span>
-                      <span className="text-white/70 text-sm">{inv.country}{inv.city ? `, ${inv.city}` : ''}</span>
+                      <span className="text-muted-foreground text-sm">{inv.country}{inv.city ? `, ${inv.city}` : ''}</span>
                     </div>
-                    <h3 className="text-white font-semibold text-lg mb-3 line-clamp-2">{inv.title}</h3>
+                    <h3 className="text-foreground font-semibold text-lg mb-3 line-clamp-2">{inv.title}</h3>
                     <div className="flex flex-wrap items-center gap-2 mb-4">
-                      <Badge variant="outline" className="border-white/20 text-white/70 text-xs">
+                      <Badge variant="outline" className="border-border text-muted-foreground text-xs">
                         {typeLabels[inv.type]}
                       </Badge>
                       {inv.expected_return != null && (
-                        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-xs border">
+                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs border">
                           {inv.expected_return}% retorno
                         </Badge>
                       )}
                     </div>
-                    <p className="text-[hsl(var(--gold))] font-semibold text-sm">
+                    <p className="text-primary font-semibold text-sm">
                       Desde {inv.currency ?? 'USD'} {inv.min_amount.toLocaleString('es')}
                     </p>
                   </div>
@@ -217,30 +217,26 @@ export default function Inversiones() {
       </section>
 
       {/* ══════════ CTA QUIZ ══════════ */}
-      <section id="quiz" className="py-20">
+      <section id="quiz" className="py-20 bg-secondary">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="max-w-3xl mx-auto text-center rounded-2xl p-10 md:p-16"
-            style={{
-              background: 'linear-gradient(135deg, hsl(43 74% 52% / .15), hsl(43 74% 42% / .08))',
-              border: '1px solid hsl(43 74% 52% / .25)',
-            }}
+            className="max-w-3xl mx-auto text-center rounded-2xl p-10 md:p-16 bg-primary"
           >
-            <div className="mx-auto w-16 h-16 rounded-full bg-[hsl(var(--gold))]/20 flex items-center justify-center mb-6">
-              <TrendingUp className="h-8 w-8 text-[hsl(var(--gold))]" />
+            <div className="mx-auto w-16 h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center mb-6">
+              <TrendingUp className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
               ¿Qué tipo de inversor eres?
             </h2>
-            <p className="text-white/60 mb-8 max-w-lg mx-auto">
+            <p className="text-primary-foreground/70 mb-8 max-w-lg mx-auto">
               En 3 minutos descubre si eres un inversor conservador, moderado o agresivo y qué oportunidades son para ti.
             </p>
             <Button
               size="lg"
-              className="bg-[hsl(var(--gold))] hover:bg-[hsl(var(--gold-dark))] text-black font-semibold text-base px-10 py-6 rounded-lg"
+              className="bg-background hover:bg-background/90 text-foreground font-semibold text-base px-10 py-6 rounded-lg"
               asChild
             >
               <a href="#quiz">Hacer el test gratuito</a>
@@ -250,7 +246,7 @@ export default function Inversiones() {
       </section>
 
       {/* ══════════ BLOQUE DE CONFIANZA ══════════ */}
-      <section className="py-20 md:py-28 border-t border-white/5">
+      <section className="py-20 md:py-28 bg-background border-t border-border">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -276,13 +272,13 @@ export default function Inversiones() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="text-center p-8 rounded-xl border border-white/10 bg-white/[.02]"
+                className="text-center p-8 rounded-xl border border-border bg-background"
               >
-                <div className="mx-auto w-14 h-14 rounded-full bg-[hsl(var(--gold))]/10 flex items-center justify-center mb-5">
-                  <item.icon className="h-6 w-6 text-[hsl(var(--gold))]" />
+                <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-5">
+                  <item.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-white font-semibold text-lg mb-2">{item.title}</h3>
-                <p className="text-white/50 text-sm leading-relaxed">{item.desc}</p>
+                <h3 className="text-foreground font-semibold text-lg mb-2">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>

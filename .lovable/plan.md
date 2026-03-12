@@ -1,61 +1,73 @@
 
+## Plan: Corregir Logo del Sidebar Admin
 
-## Plan: Paginación 8-por-página con Card "Ver Más"
+### Problema Identificado
 
-### Cambios en `src/pages/Properties.tsx`
+El logo en el sidebar del panel administrativo aparece como un cuadrado blanco debido a los filtros CSS `brightness-0 invert` aplicados en la línea 89 de `AdminLayout.tsx`.
 
-**1. Grid layout**: Cambiar de 3 columnas a 4 en desktop.
+### Causa Raíz
 
-```text
-Desktop:  grid-cols-4    (4 columnas)
-Tablet:   grid-cols-2    (2 columnas)
-Móvil:    grid-cols-1    (1 columna)
+```css
+brightness-0  /* Convierte toda la imagen a negro solido */
+invert        /* Invierte negro a blanco */
 ```
 
-**2. Paginación offset con estado**
+Esta combinacion aplana cualquier logo con detalles o colores a un rectangulo blanco solido.
 
-- Nuevo estado `page` (inicia en 0)
-- Mostrar `page * 8` hasta `(page + 1) * 8` de `filteredProperties`
-- Si hay más de 8 propiedades restantes, la posición 8 se reemplaza por el card especial "Ver más"
-- Es decir: se muestran 7 propiedades + 1 card CTA cuando hay más páginas
+---
 
-**3. Card especial "Ver más"**
+### Solucion Propuesta
 
-- Mismo tamaño que PropertyCard
-- Fondo con gradiente sutil, icono de flecha
-- Muestra conteo restante: `+ {remaining} propiedades más`
-- Al hacer clic, incrementa `page` y muestra las siguientes 8 (o las que queden)
-- Si quedan 8 o menos en la página actual, se muestran todas sin card especial
+**Archivo a modificar:** `src/pages/admin/AdminLayout.tsx`
 
-**4. Framer Motion stagger**
-
-- Cada card envuelto en `motion.div` con `initial/animate` y `transition.delay` basado en índice
-- Fade-in + slide-up con stagger de ~0.05s por card
-
-**5. Reset de página al filtrar**
-
-- Cuando cambie `searchQuery` o `cityFilter`, resetear `page` a 0
-
-**6. Skeletons**: Actualizar a 8 skeletons con el nuevo grid de 4 columnas
-
-### Lógica de paginación
+**Cambio:** Remover los filtros CSS problematicos y ajustar el contraste de forma mas sutil.
 
 ```text
-totalFiltered = filteredProperties.length
-pageStart = page * PAGE_SIZE          // PAGE_SIZE = 8
-pageItems = filteredProperties.slice(pageStart, pageStart + PAGE_SIZE)
-hasMore = pageStart + PAGE_SIZE < totalFiltered
-remaining = totalFiltered - pageStart - (hasMore ? 7 : pageItems.length)
+Antes (linea 89):
+<img src={logo} className="h-10 w-auto brightness-0 invert" />
+                                    ^^^^^^^^^^^^^^^^^^^^
+                                    Causa el cuadrado blanco
 
-Si hasMore:
-  → Mostrar pageItems[0..6] (7 cards) + 1 card "Ver más"
-Si no:
-  → Mostrar todos los pageItems normalmente
+Despues:
+<img src={logo} className="h-10 w-auto" />
 ```
 
-### Archivos a modificar
+---
 
-| Archivo | Cambio |
-|---|---|
-| `src/pages/Properties.tsx` | Paginación, grid 4-col, card CTA, framer-motion stagger, reset al filtrar |
+### Alternativas de Estilo
 
+Si el logo necesita adaptarse al fondo oscuro del sidebar, hay opciones mas elegantes:
+
+| Opcion | Clase CSS | Efecto |
+|--------|-----------|--------|
+| Sin filtro | (ninguna) | Logo original |
+| Contraste suave | `contrast-125 brightness-110` | Mejora visibilidad |
+| Drop shadow | `drop-shadow-lg` | Agrega sombra para destacar |
+
+---
+
+### Impacto
+
+Solo afecta el logo del sidebar en el panel de administracion. Los otros usos del logo (loading screen, mobile header) no tienen estos filtros y se mostraran correctamente.
+
+---
+
+## Seccion Tecnica
+
+### Ubicaciones del Logo en AdminLayout.tsx
+
+| Linea | Contexto | Clases actuales | Cambio necesario |
+|-------|----------|-----------------|------------------|
+| 60 | Loading screen | `h-12 w-auto` | Ninguno |
+| 72 | Mobile header | `h-8 w-auto` | Ninguno |
+| 89 | Sidebar | `h-10 w-auto brightness-0 invert` | Remover filtros |
+
+### Codigo Final
+
+```tsx
+// Linea 89 - Cambiar de:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto brightness-0 invert" />
+
+// A:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto" />
+```

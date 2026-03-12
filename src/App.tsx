@@ -14,6 +14,7 @@ import PropertyList from "./pages/admin/properties/PropertyList";
 import PropertyCreate from "./pages/admin/properties/PropertyCreate";
 import PropertyEdit from "./pages/admin/properties/PropertyEdit";
 import BlocksConfig from "./pages/admin/configuracion/BlocksConfig";
+import Inversiones from "./pages/Inversiones";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

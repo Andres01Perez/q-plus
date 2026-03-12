@@ -35,6 +35,12 @@ const Header = () => {
             >
               Propiedades
             </Link>
+            <Link 
+              to="/inversiones" 
+              className="font-body text-sm text-foreground hover:text-primary transition-colors"
+            >
+              Inversiones
+            </Link>
             <a 
               href="#contacto" 
               className="font-body text-sm text-foreground hover:text-primary transition-colors"

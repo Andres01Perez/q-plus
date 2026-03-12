@@ -2,7 +2,9 @@ import { Phone, Mail, MapPin, Instagram, Youtube } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
-import FeaturedSlider from "@/components/home/FeaturedSlider";
+import AboutSection from "@/components/home/AboutSection";
+import PropertiesSlider from "@/components/home/PropertiesSlider";
+import InvestmentsSlider from "@/components/home/InvestmentsSlider";
 
 const TikTokIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor">
@@ -15,7 +17,9 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <HeroSection />
-      <FeaturedSlider />
+      <AboutSection />
+      <PropertiesSlider />
+      <InvestmentsSlider />
 
       {/* Contact Section */}
       <section id="contacto" className="py-20 bg-secondary">

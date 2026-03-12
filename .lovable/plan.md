@@ -1,26 +1,73 @@
 
+## Plan: Corregir Logo del Sidebar Admin
 
-## Plan: Slider continuo infinito (CSS marquee) para Propiedades e Inversiones
+### Problema Identificado
 
-### Problema actual
-Los sliders usan Embla Carousel con `scrollNext()` cada 4s — produce saltos discretos y solo carga 4 items.
+El logo en el sidebar del panel administrativo aparece como un cuadrado blanco debido a los filtros CSS `brightness-0 invert` aplicados en la línea 89 de `AdminLayout.tsx`.
 
-### Solucion
-Reemplazar Embla por una animacion CSS tipo **marquee continuo**: duplicar los items en el DOM y usar `@keyframes` con `translateX` para scroll infinito sin cortes ni pausas.
+### Causa Raíz
 
-### Cambios
+```css
+brightness-0  /* Convierte toda la imagen a negro solido */
+invert        /* Invierte negro a blanco */
+```
 
-| Archivo | Cambio |
-|---|---|
-| `src/components/home/PropertiesSlider.tsx` | Eliminar Embla, usar CSS marquee continuo, quitar `.limit(4)` para traer todas las propiedades |
-| `src/components/home/InvestmentsSlider.tsx` | Igual: eliminar Embla, CSS marquee continuo, quitar `.limit(4)` para traer todas las inversiones |
+Esta combinacion aplana cualquier logo con detalles o colores a un rectangulo blanco solido.
 
-### Detalle tecnico
+---
 
-- Quitar `useEmblaCarousel` y el `setInterval` autoplay
-- Renderizar los items duplicados (`[...items, ...items]`) dentro de un contenedor con animacion CSS
-- Animacion: `@keyframes scroll { from { transform: translateX(0) } to { transform: translateX(-50%) } }` aplicada con `animation: scroll Xs linear infinite`
-- Velocidad calculada segun cantidad de items (~8s por item para movimiento lento y elegante)
-- Pausar al hover (`animation-play-state: paused`) para permitir interaccion
-- Quitar `.limit(4)` de ambas queries para traer todos los registros
+### Solucion Propuesta
 
+**Archivo a modificar:** `src/pages/admin/AdminLayout.tsx`
+
+**Cambio:** Remover los filtros CSS problematicos y ajustar el contraste de forma mas sutil.
+
+```text
+Antes (linea 89):
+<img src={logo} className="h-10 w-auto brightness-0 invert" />
+                                    ^^^^^^^^^^^^^^^^^^^^
+                                    Causa el cuadrado blanco
+
+Despues:
+<img src={logo} className="h-10 w-auto" />
+```
+
+---
+
+### Alternativas de Estilo
+
+Si el logo necesita adaptarse al fondo oscuro del sidebar, hay opciones mas elegantes:
+
+| Opcion | Clase CSS | Efecto |
+|--------|-----------|--------|
+| Sin filtro | (ninguna) | Logo original |
+| Contraste suave | `contrast-125 brightness-110` | Mejora visibilidad |
+| Drop shadow | `drop-shadow-lg` | Agrega sombra para destacar |
+
+---
+
+### Impacto
+
+Solo afecta el logo del sidebar en el panel de administracion. Los otros usos del logo (loading screen, mobile header) no tienen estos filtros y se mostraran correctamente.
+
+---
+
+## Seccion Tecnica
+
+### Ubicaciones del Logo en AdminLayout.tsx
+
+| Linea | Contexto | Clases actuales | Cambio necesario |
+|-------|----------|-----------------|------------------|
+| 60 | Loading screen | `h-12 w-auto` | Ninguno |
+| 72 | Mobile header | `h-8 w-auto` | Ninguno |
+| 89 | Sidebar | `h-10 w-auto brightness-0 invert` | Remover filtros |
+
+### Codigo Final
+
+```tsx
+// Linea 89 - Cambiar de:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto brightness-0 invert" />
+
+// A:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto" />
+```

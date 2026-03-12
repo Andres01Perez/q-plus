@@ -61,6 +61,15 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          light: "hsl(var(--gold-light))",
+          dark: "hsl(var(--gold-dark))",
+        },
+        luxury: {
+          bg: "hsl(var(--luxury-bg))",
+          "bg-alt": "hsl(var(--luxury-bg-alt))",
+        },
         qplus: {
           blue: "hsl(var(--qplus-blue))",
           "blue-light": "hsl(var(--qplus-blue-light))",

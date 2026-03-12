@@ -41,6 +41,10 @@ const AdminLayout = () => {
       icon: PlusCircle
     }]
   }, {
+    label: 'Contenido Destacado',
+    icon: Star,
+    path: '/admin/contenido-destacado'
+  }, {
     label: 'Configuración',
     icon: Settings,
     path: '/admin/configuracion',

@@ -40,6 +40,7 @@ const App = () => (
               <Route path="propiedades" element={<PropertyList />} />
               <Route path="propiedades/nueva" element={<PropertyCreate />} />
               <Route path="propiedades/:id" element={<PropertyEdit />} />
+              <Route path="contenido-destacado" element={<FeaturedSectionsList />} />
               <Route path="configuracion/bloques" element={<BlocksConfig />} />
             </Route>
             

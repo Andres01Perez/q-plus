@@ -84,6 +84,13 @@ const Header = () => {
               >
                 Propiedades
               </Link>
+              <Link 
+                to="/inversiones" 
+                onClick={() => setIsOpen(false)}
+                className="p-3 rounded-lg hover:bg-muted transition-colors font-body text-foreground"
+              >
+                Inversiones
+              </Link>
               <a 
                 href="#contacto" 
                 onClick={() => setIsOpen(false)}

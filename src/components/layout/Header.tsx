@@ -35,6 +35,12 @@ const Header = () => {
             >
               Propiedades
             </Link>
+            <Link 
+              to="/inversiones" 
+              className="font-body text-sm text-foreground hover:text-primary transition-colors"
+            >
+              Inversiones
+            </Link>
             <a 
               href="#contacto" 
               className="font-body text-sm text-foreground hover:text-primary transition-colors"
@@ -77,6 +83,13 @@ const Header = () => {
                 className="p-3 rounded-lg hover:bg-muted transition-colors font-body text-foreground"
               >
                 Propiedades
+              </Link>
+              <Link 
+                to="/inversiones" 
+                onClick={() => setIsOpen(false)}
+                className="p-3 rounded-lg hover:bg-muted transition-colors font-body text-foreground"
+              >
+                Inversiones
               </Link>
               <a 
                 href="#contacto" 

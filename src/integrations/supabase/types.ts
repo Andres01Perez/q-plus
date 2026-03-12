@@ -130,6 +130,54 @@ export type Database = {
         }
         Relationships: []
       }
+      investments: {
+        Row: {
+          active: boolean | null
+          city: string | null
+          country: string
+          created_at: string | null
+          currency: string | null
+          expected_return: number | null
+          id: string
+          image_url: string | null
+          min_amount: number
+          slug: string
+          title: string
+          type: Database["public"]["Enums"]["investment_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          city?: string | null
+          country: string
+          created_at?: string | null
+          currency?: string | null
+          expected_return?: number | null
+          id?: string
+          image_url?: string | null
+          min_amount: number
+          slug: string
+          title: string
+          type: Database["public"]["Enums"]["investment_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          city?: string | null
+          country?: string
+          created_at?: string | null
+          currency?: string | null
+          expected_return?: number | null
+          id?: string
+          image_url?: string | null
+          min_amount?: number
+          slug?: string
+          title?: string
+          type?: Database["public"]["Enums"]["investment_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -329,6 +377,7 @@ export type Database = {
       block_type: "checklist" | "details_list" | "free_text"
       featured_section_type: "servicios" | "propiedades" | "inversiones"
       input_type: "checkbox" | "text" | "number" | "textarea"
+      investment_type: "residencial" | "comercial" | "fondo"
       media_type: "image" | "video"
       price_display_mode: "sale" | "rent" | "both" | "hidden"
       property_status: "available" | "sold" | "rented" | "reserved" | "draft"
@@ -462,6 +511,7 @@ export const Constants = {
       block_type: ["checklist", "details_list", "free_text"],
       featured_section_type: ["servicios", "propiedades", "inversiones"],
       input_type: ["checkbox", "text", "number", "textarea"],
+      investment_type: ["residencial", "comercial", "fondo"],
       media_type: ["image", "video"],
       price_display_mode: ["sale", "rent", "both", "hidden"],
       property_status: ["available", "sold", "rented", "reserved", "draft"],

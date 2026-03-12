@@ -1,69 +1,73 @@
 
+## Plan: Corregir Logo del Sidebar Admin
 
-## Plan: Pagina /inversiones + tabla `investments`
+### Problema Identificado
 
-### 1. Database Migration
+El logo en el sidebar del panel administrativo aparece como un cuadrado blanco debido a los filtros CSS `brightness-0 invert` aplicados en la línea 89 de `AdminLayout.tsx`.
 
-Crear tabla `investments`:
+### Causa Raíz
 
-```sql
-CREATE TYPE public.investment_type AS ENUM ('residencial', 'comercial', 'fondo');
-
-CREATE TABLE public.investments (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  title text NOT NULL,
-  country text NOT NULL,
-  city text,
-  type investment_type NOT NULL,
-  min_amount numeric NOT NULL,
-  expected_return numeric,
-  currency text DEFAULT 'USD',
-  image_url text,
-  slug text NOT NULL,
-  active boolean DEFAULT true,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
-
-ALTER TABLE public.investments ENABLE ROW LEVEL SECURITY;
-
--- Public read for active
-CREATE POLICY "Anyone can view active investments"
-  ON public.investments FOR SELECT TO public
-  USING (active = true);
-
--- Auth users manage
-CREATE POLICY "Auth users can manage investments"
-  ON public.investments FOR ALL TO authenticated
-  USING (auth.uid() IS NOT NULL);
+```css
+brightness-0  /* Convierte toda la imagen a negro solido */
+invert        /* Invierte negro a blanco */
 ```
 
-### 2. Nuevo archivo: `src/pages/Inversiones.tsx`
+Esta combinacion aplana cualquier logo con detalles o colores a un rectangulo blanco solido.
 
-Pagina completa con 4 secciones:
+---
 
-**Seccion 1 — Hero**: Fondo con imagen de skyline + overlay oscuro semi-transparente. Badge dorado "Inversiones Internacionales". Headline grande "Invierte en el exterior con respaldo experto". Tres metricas animadas con `framer-motion` (contadores que suben): "USD 2M+ gestionados", "15+ paises", "200+ inversores". CTA boton dorado "Descubre tu perfil de inversor" que lleva a `#quiz`.
+### Solucion Propuesta
 
-**Seccion 2 — Grid de oportunidades**: Fetch de `investments` (active=true). Cards premium oscuras con: bandera emoji del pais + nombre, badge de tipo (residencial/comercial/fondo), retorno esperado en badge verde, monto minimo formateado. Grid `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`. Animacion stagger con framer-motion.
+**Archivo a modificar:** `src/pages/admin/AdminLayout.tsx`
 
-**Seccion 3 — CTA Quiz**: Bloque centrado con gradiente dorado, icono TrendingUp, titulo "Que tipo de inversor eres?", descripcion corta, boton grande "Hacer el test gratuito" → `#quiz`.
+**Cambio:** Remover los filtros CSS problematicos y ajustar el contraste de forma mas sutil.
 
-**Seccion 4 — Bloque de confianza**: 3 columnas con iconos (Shield, PieChart, FileCheck), titulos y descripciones de 2 lineas. Fondo oscuro con bordes dorados sutiles.
+```text
+Antes (linea 89):
+<img src={logo} className="h-10 w-auto brightness-0 invert" />
+                                    ^^^^^^^^^^^^^^^^^^^^
+                                    Causa el cuadrado blanco
 
-### 3. Modificar `src/App.tsx`
+Despues:
+<img src={logo} className="h-10 w-auto" />
+```
 
-Agregar ruta `/inversiones` → `<Inversiones />`.
+---
 
-### 4. Modificar `src/components/layout/Header.tsx`
+### Alternativas de Estilo
 
-Agregar link "Inversiones" entre "Propiedades" y "Contacto" en desktop y mobile nav.
+Si el logo necesita adaptarse al fondo oscuro del sidebar, hay opciones mas elegantes:
 
-### Archivos
+| Opcion | Clase CSS | Efecto |
+|--------|-----------|--------|
+| Sin filtro | (ninguna) | Logo original |
+| Contraste suave | `contrast-125 brightness-110` | Mejora visibilidad |
+| Drop shadow | `drop-shadow-lg` | Agrega sombra para destacar |
 
-| Archivo | Accion |
-|---|---|
-| DB migration | Crear tabla `investments` |
-| `src/pages/Inversiones.tsx` | Crear |
-| `src/App.tsx` | Agregar ruta |
-| `src/components/layout/Header.tsx` | Agregar link nav |
+---
 
+### Impacto
+
+Solo afecta el logo del sidebar en el panel de administracion. Los otros usos del logo (loading screen, mobile header) no tienen estos filtros y se mostraran correctamente.
+
+---
+
+## Seccion Tecnica
+
+### Ubicaciones del Logo en AdminLayout.tsx
+
+| Linea | Contexto | Clases actuales | Cambio necesario |
+|-------|----------|-----------------|------------------|
+| 60 | Loading screen | `h-12 w-auto` | Ninguno |
+| 72 | Mobile header | `h-8 w-auto` | Ninguno |
+| 89 | Sidebar | `h-10 w-auto brightness-0 invert` | Remover filtros |
+
+### Codigo Final
+
+```tsx
+// Linea 89 - Cambiar de:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto brightness-0 invert" />
+
+// A:
+<img src={logo} alt="Q+ Inmobiliaria" className="h-10 w-auto" />
+```

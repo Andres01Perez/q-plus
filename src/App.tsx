@@ -14,6 +14,7 @@ import PropertyList from "./pages/admin/properties/PropertyList";
 import PropertyCreate from "./pages/admin/properties/PropertyCreate";
 import PropertyEdit from "./pages/admin/properties/PropertyEdit";
 import BlocksConfig from "./pages/admin/configuracion/BlocksConfig";
+import Inversiones from "./pages/Inversiones";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/propiedades" element={<Properties />} />
             <Route path="/propiedad/:slug" element={<PropertyDetail />} />
+            <Route path="/inversiones" element={<Inversiones />} />
             <Route path="/login" element={<Login />} />
             
             {/* Admin Routes */}

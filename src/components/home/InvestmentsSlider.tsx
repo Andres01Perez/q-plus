@@ -148,7 +148,7 @@ const InvestmentsSlider = () => {
                           Desde {formatAmount(inv.min_amount, inv.currency)}
                         </p>
                         {inv.expected_return != null && (
-                          <p className="flex items-center gap-1 text-xs text-green-600">
+                          <p className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
                             <TrendingUp className="h-3 w-3" />
                             Retorno esperado: {inv.expected_return}%
                           </p>

@@ -16,6 +16,8 @@ import PropertyEdit from "./pages/admin/properties/PropertyEdit";
 import BlocksConfig from "./pages/admin/configuracion/BlocksConfig";
 import FeaturedSectionsList from "./pages/admin/contenido/FeaturedSectionsList";
 import Inversiones from "./pages/Inversiones";
+import Herramientas from "./pages/Herramientas";
+import MesaInversionistas from "./pages/MesaInversionistas";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
             <Route path="/propiedades" element={<Properties />} />
             <Route path="/propiedad/:slug" element={<PropertyDetail />} />
             <Route path="/inversiones" element={<Inversiones />} />
+            <Route path="/herramientas" element={<Herramientas />} />
+            <Route path="/mesa-inversionistas" element={<MesaInversionistas />} />
             <Route path="/login" element={<Login />} />
             
             {/* Admin Routes */}

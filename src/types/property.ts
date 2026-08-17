@@ -5,6 +5,9 @@ export type Property = Database["public"]["Tables"]["properties"]["Row"];
 export type PropertyInsert = Database["public"]["Tables"]["properties"]["Insert"];
 export type PropertyUpdate = Database["public"]["Tables"]["properties"]["Update"];
 
+export type PrivateListingLead = Database["public"]["Tables"]["private_listing_leads"]["Row"];
+export type PrivateListingLeadInsert = Database["public"]["Tables"]["private_listing_leads"]["Insert"];
+
 export type Block = Database["public"]["Tables"]["blocks"]["Row"];
 export type Attribute = Database["public"]["Tables"]["attributes"]["Row"];
 export type PropertyValue = Database["public"]["Tables"]["property_values"]["Row"];
@@ -43,7 +46,8 @@ export interface PropertyFormData {
   bathrooms: number | null;
   area_m2: number | null;
   status: PropertyStatus;
-  
+  is_private: boolean;
+
   // Dynamic values - indexed by attribute_id
   dynamicValues: Record<string, string>;
 }
@@ -81,5 +85,6 @@ export const defaultPropertyFormData: PropertyFormData = {
   bathrooms: null,
   area_m2: null,
   status: "draft",
+  is_private: false,
   dynamicValues: {},
 };

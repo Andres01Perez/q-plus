@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PropertyCard from '@/components/property/PropertyCard';
+import { PrivateListingsSection } from '@/components/property/PrivateListingsSection';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -59,6 +60,7 @@ const Properties = () => {
           property_media (url, is_main)
         `)
         .neq('status', 'draft')
+        .eq('is_private', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -231,6 +233,8 @@ const Properties = () => {
           )}
         </div>
       </section>
+
+      <PrivateListingsSection />
 
       <Footer />
     </div>

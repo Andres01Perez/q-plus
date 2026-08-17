@@ -35,20 +35,32 @@ const Header = () => {
             >
               Propiedades
             </Link>
-            <Link 
-              to="/inversiones" 
+            <Link
+              to="/inversiones"
               className="font-body text-sm text-foreground hover:text-primary transition-colors"
             >
               Inversiones
             </Link>
-            <a 
-              href="#contacto" 
+            <Link
+              to="/herramientas"
+              className="font-body text-sm text-foreground hover:text-primary transition-colors"
+            >
+              Herramientas
+            </Link>
+            <Link
+              to="/mesa-inversionistas"
+              className="font-body text-sm text-foreground hover:text-primary transition-colors"
+            >
+              Mesa de Inversionistas
+            </Link>
+            <a
+              href="#contacto"
               className="font-body text-sm text-foreground hover:text-primary transition-colors"
             >
               Contacto
             </a>
-            <Link 
-              to={user ? "/admin" : "/login"} 
+            <Link
+              to={user ? "/admin" : "/login"}
               className="p-2 rounded-lg hover:bg-muted transition-colors"
               aria-label="Acceso administrativo"
             >
@@ -84,15 +96,29 @@ const Header = () => {
               >
                 Propiedades
               </Link>
-              <Link 
-                to="/inversiones" 
+              <Link
+                to="/inversiones"
                 onClick={() => setIsOpen(false)}
                 className="p-3 rounded-lg hover:bg-muted transition-colors font-body text-foreground"
               >
                 Inversiones
               </Link>
-              <a 
-                href="#contacto" 
+              <Link
+                to="/herramientas"
+                onClick={() => setIsOpen(false)}
+                className="p-3 rounded-lg hover:bg-muted transition-colors font-body text-foreground"
+              >
+                Herramientas
+              </Link>
+              <Link
+                to="/mesa-inversionistas"
+                onClick={() => setIsOpen(false)}
+                className="p-3 rounded-lg hover:bg-muted transition-colors font-body text-foreground"
+              >
+                Mesa de Inversionistas
+              </Link>
+              <a
+                href="#contacto"
                 onClick={() => setIsOpen(false)}
                 className="p-3 rounded-lg hover:bg-muted transition-colors font-body text-foreground"
               >

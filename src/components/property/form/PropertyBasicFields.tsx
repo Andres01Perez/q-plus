@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { DescriptionAIButton } from "./DescriptionAIButton";
 import type { PropertyFormData, PropertyStatus, PriceDisplayMode } from "@/types/property";
 
@@ -92,6 +93,23 @@ export function PropertyBasicFields({
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Private / exclusive listing */}
+        <div className="flex items-start justify-between gap-4 rounded-lg border border-gold/30 bg-gold/5 p-4">
+          <div className="space-y-1">
+            <Label htmlFor="is_private">Propiedad privada / exclusiva</Label>
+            <p className="text-sm text-muted-foreground">
+              No aparece en el listado público de Propiedades. Solo se muestra
+              como vista previa en "Propiedades Privadas", y el detalle
+              completo se comparte tras el registro del interesado.
+            </p>
+          </div>
+          <Switch
+            id="is_private"
+            checked={formData.is_private}
+            onCheckedChange={(checked) => onFieldChange("is_private", checked)}
+          />
         </div>
 
         {/* Main Description with AI Button */}

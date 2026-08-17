@@ -43,6 +43,21 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/propiedades#privadas" className="font-body text-sm opacity-80 hover:opacity-100 transition-opacity">
+                  Propiedades privadas
+                </Link>
+              </li>
+              <li>
+                <Link to="/herramientas" className="font-body text-sm opacity-80 hover:opacity-100 transition-opacity">
+                  Herramientas
+                </Link>
+              </li>
+              <li>
+                <Link to="/mesa-inversionistas" className="font-body text-sm opacity-80 hover:opacity-100 transition-opacity">
+                  Mesa de Inversionistas
+                </Link>
+              </li>
+              <li>
                 <a href="#contacto" className="font-body text-sm opacity-80 hover:opacity-100 transition-opacity">
                   Contacto
                 </a>

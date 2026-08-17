@@ -56,6 +56,7 @@ export function usePropertyForm({ propertyId }: UsePropertyFormOptions = {}): Us
     bathrooms: null,
     area_m2: null,
     status: "draft",
+    is_private: false,
     dynamicValues: {},
   });
   const [mediaItems, setMediaItems] = useState<MediaFormItem[]>([]);
@@ -164,6 +165,7 @@ export function usePropertyForm({ propertyId }: UsePropertyFormOptions = {}): Us
           bathrooms: property.bathrooms,
           area_m2: property.area_m2 ? Number(property.area_m2) : null,
           status: property.status || "draft",
+          is_private: property.is_private ?? false,
           dynamicValues,
         });
 
@@ -257,6 +259,7 @@ export function usePropertyForm({ propertyId }: UsePropertyFormOptions = {}): Us
         bathrooms: formData.bathrooms,
         area_m2: formData.area_m2,
         status: formData.status,
+        is_private: formData.is_private,
         created_by: user.id,
       };
 

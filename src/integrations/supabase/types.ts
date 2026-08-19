@@ -178,47 +178,6 @@ export type Database = {
         }
         Relationships: []
       }
-      private_listing_leads: {
-        Row: {
-          celular: string
-          consiente_tratamiento_datos: boolean
-          correo: string
-          created_at: string | null
-          id: string
-          identificacion: string
-          nombre: string
-          propiedad_id: string | null
-        }
-        Insert: {
-          celular: string
-          consiente_tratamiento_datos?: boolean
-          correo: string
-          created_at?: string | null
-          id?: string
-          identificacion: string
-          nombre: string
-          propiedad_id?: string | null
-        }
-        Update: {
-          celular?: string
-          consiente_tratamiento_datos?: boolean
-          correo?: string
-          created_at?: string | null
-          id?: string
-          identificacion?: string
-          nombre?: string
-          propiedad_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "private_listing_leads_propiedad_id_fkey"
-            columns: ["propiedad_id"]
-            isOneToOne: false
-            referencedRelation: "properties"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -262,7 +221,6 @@ export type Database = {
             | Database["public"]["Enums"]["price_display_mode"]
             | null
           id: string
-          is_private: boolean
           lat: number | null
           lng: number | null
           main_description: string | null
@@ -286,7 +244,6 @@ export type Database = {
             | Database["public"]["Enums"]["price_display_mode"]
             | null
           id?: string
-          is_private?: boolean
           lat?: number | null
           lng?: number | null
           main_description?: string | null
@@ -310,7 +267,6 @@ export type Database = {
             | Database["public"]["Enums"]["price_display_mode"]
             | null
           id?: string
-          is_private?: boolean
           lat?: number | null
           lng?: number | null
           main_description?: string | null

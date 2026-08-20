@@ -78,7 +78,7 @@ const PropertiesSlider = () => {
                 {items.map((p, idx) => (
                   <Link
                     key={`${p.id}-${idx}`}
-                    to={`/propiedades/${p.slug}`}
+                    to={`/propiedad/${p.slug}`}
                     className="flex-shrink-0 w-72 rounded-xl overflow-hidden border border-border bg-background group shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="aspect-[4/3] overflow-hidden bg-muted">
